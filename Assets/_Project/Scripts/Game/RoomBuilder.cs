@@ -54,6 +54,23 @@ namespace Suraksha.Game
     }
 
     /// <summary>
+    /// How much of the room shell to build.
+    ///
+    /// Enclosed is the 3D fallback: you stand inside, so the room has to have a ceiling and four
+    /// walls or the illusion of being in a workshop collapses.
+    ///
+    /// Cutaway is AR: the room is a hologram about two metres wide sitting on the floor in front
+    /// of you, and you look into it from outside. The ceiling and the near wall have to go, or the
+    /// near wall blocks the floor: from eye height 1.5 m, a 0.9 m wall one metre away hides
+    /// everything closer than 2.5 m — which is most of the room.
+    /// </summary>
+    public enum RoomView
+    {
+        Enclosed,
+        Cutaway
+    }
+
+    /// <summary>
     /// Builds the grey-box room for a lesson at runtime, out of coloured primitives.
     ///
     /// Why procedural instead of a hand-authored scene: a .unity file is a 900-line YAML blob of
@@ -85,36 +102,66 @@ namespace Suraksha.Game
         private const float HalfDepth = 3.5f;
         private const float Height = 3.2f;
 
-        public static BuiltRoom Build(string lessonId, Transform parent)
+        /// <summary>Half the room's depth in metres. AR placement uses it to clear the viewer.</summary>
+        public const float HalfDepthMeters = HalfDepth;
+
+        public static BuiltRoom Build(string lessonId, Transform parent, RoomView view = RoomView.Enclosed)
         {
             var room = new BuiltRoom();
             var root = new GameObject("Room_" + lessonId);
             root.transform.SetParent(parent, false);
             room.Root = root;
 
-            Shell(root);
+            Shell(root, view);
 
-            if (lessonId == "fire") BuildFire(root, room);
-            else if (lessonId == "gas") BuildGas(root, room);
+            if (lessonId == "fire") BuildFire(root, room, view);
+            else if (lessonId == "gas") BuildGas(root, room, view);
             else throw new System.ArgumentException("No room layout for lesson '" + lessonId + "'.");
 
             return room;
         }
 
-        // ---------------------------------------------------------------- shell
+        /// <summary>
+        /// Point-light range is in world metres and is NOT affected by transform scale. A 7 m
+        /// fire glow that looks right in a full-scale room floods a 2 m diorama. Call this after
+        /// scaling the room root so the lights shrink with it.
+        /// </summary>
+        public static void ScaleLightRanges(GameObject root, float scale)
+        {
+            if (root == null) return;
 
-        private static void Shell(GameObject root)
+            var lights = root.GetComponentsInChildren<Light>(true);
+            for (var i = 0; i < lights.Length; i++)
+            {
+                if (lights[i].type == LightType.Point) lights[i].range *= scale;
+            }
+        }
+
+        // ---------------------------------------------------------------- shell
+        private static void Shell(GameObject root, RoomView view)
         {
             var t = root.transform;
 
             Prim.Box("Floor", t, new Vector3(0f, -0.05f, 0f),
                 new Vector3(HalfWidth * 2f, 0.1f, HalfDepth * 2f), FloorColor);
-            Prim.Box("Ceiling", t, new Vector3(0f, Height, 0f),
-                new Vector3(HalfWidth * 2f, 0.1f, HalfDepth * 2f), CeilingColor);
+
+            // The ceiling only exists when you are inside. In AR you look down into the room.
+            if (view == RoomView.Enclosed)
+            {
+                Prim.Box("Ceiling", t, new Vector3(0f, Height, 0f),
+                    new Vector3(HalfWidth * 2f, 0.1f, HalfDepth * 2f), CeilingColor);
+            }
+
             Prim.Box("Wall_North", t, new Vector3(0f, Height * 0.5f, HalfDepth),
                 new Vector3(HalfWidth * 2f, Height, 0.1f), WallColor);
-            Prim.Box("Wall_South", t, new Vector3(0f, Height * 0.5f, -HalfDepth),
-                new Vector3(HalfWidth * 2f, Height, 0.1f), WallColor);
+
+            // The near wall. Omitted in AR so the diorama is open toward the viewer.
+            if (view == RoomView.Enclosed)
+            {
+                Prim.Box("Wall_South", t, new Vector3(0f, Height * 0.5f, -HalfDepth),
+                    new Vector3(HalfWidth * 2f, Height, 0.1f), WallColor);
+            }
+
             Prim.Box("Wall_East", t, new Vector3(HalfWidth, Height * 0.5f, 0f),
                 new Vector3(0.1f, Height, HalfDepth * 2f), WallColor);
             Prim.Box("Wall_West", t, new Vector3(-HalfWidth, Height * 0.5f, 0f),
@@ -125,7 +172,7 @@ namespace Suraksha.Game
 
         // ---------------------------------------------------------------- fire
 
-        private static void BuildFire(GameObject root, BuiltRoom room)
+        private static void BuildFire(GameObject root, BuiltRoom room, RoomView view)
         {
             var t = root.transform;
 
@@ -211,8 +258,13 @@ namespace Suraksha.Game
                 new Vector3(2.3f, 0.1f, 2.3f));
             Tag(ringHit, room, "fire_muster", "reach_ring", "fire.muster.ring");
 
-            var board = Prim.Box("RollCallBoard", t, new Vector3(0f, 1.5f, -3.38f),
-                new Vector3(0.9f, 0.6f, 0.08f), White, true);
+            // Roll-call board. It lives on the near wall, which AR removes — so in the cutaway it
+            // moves onto the west wall, in view of the open side, rather than floating in mid-air.
+            var board = view == RoomView.Enclosed
+                ? Prim.Box("RollCallBoard", t, new Vector3(0f, 1.5f, -3.38f),
+                    new Vector3(0.9f, 0.6f, 0.08f), White, true)
+                : Prim.Box("RollCallBoard", t, new Vector3(-4.41f, 1.5f, -1.9f),
+                    new Vector3(0.08f, 0.6f, 0.9f), White, true);
             Tag(board, room, "fire_muster", "roll_call", "fire.muster.roll");
 
             room.PlayerStart = new Vector3(0f, 1.6f, -2.7f);
@@ -221,7 +273,7 @@ namespace Suraksha.Game
 
         // ---------------------------------------------------------------- gas
 
-        private static void BuildGas(GameObject root, BuiltRoom room)
+        private static void BuildGas(GameObject root, BuiltRoom room, RoomView view)
         {
             var t = root.transform;
 

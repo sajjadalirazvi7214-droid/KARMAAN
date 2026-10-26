@@ -28,12 +28,12 @@ signed QR certificate. No headset, no internet, Hindi and Santali.
 | Game design (5 lessons) | ✅ Specified, mapped to MVTR schedules |
 | Core rules engine (C#) | ✅ Runner, scoring, guardrails, cert, store |
 | **Playable game — 3D mode** | ✅ **Fire + Gas, full loop, runs in the Editor today** |
+| **AR mode (ARCore plane placement)** | ✅ **Wired — session, plane tap-to-place, tap-to-pick, cutaway diorama. Needs a device to prove.** |
 | Grey-box rooms | ✅ 45 primitives each, coloured, name-tagged |
 | Lesson packs (Fire, Gas) | ✅ JSON, validated |
-| Hindi strings | ✅ 171 keys, 0 missing |
+| Hindi strings | ✅ 181 keys, 0 missing |
 | Santali strings | ⚠️ **0% — stubs only, needs native QA in Dumka/Pakur** |
 | QR **image** | ❌ Needs ZXing (Phase 5). The signed token and offline verify already work. |
-| AR mode (ARCore plane placement) | ❌ Phase 3 — the rig is built to accept it, not yet wired |
 | Voice tracks (Hindi/Santali) | ❌ Phase 3 — tones are generated, speech is not recorded |
 | Android APK | ❌ **Blocked — Android Build Support not installed** |
 | Dashboard / server | ❌ Phase 6 |
@@ -41,6 +41,10 @@ signed QR certificate. No headset, no internet, Hindi and Santali.
 **The game plays now, in the Editor, in 3D mode.** It is a grey-box: coloured shapes with
 floating name tags, not modelled art. That is the intended build order — prove the loop, then
 replace the props.
+
+AR mode cannot run in the Editor — there is no AR loader for Windows. It is only exercised on an
+Android phone, and the menu switch is greyed out everywhere else rather than failing at lesson
+start.
 
 ---
 
@@ -64,6 +68,27 @@ locks for three seconds — the demo stand-in for fetching a trainer.
 **Gas lesson:** beep → three PPE → buddy → fan/permit/meter → refuse entry.
 
 Then a six-question quiz, a score, and a signed certificate token you can verify on the spot.
+
+---
+
+## AR mode (phone only)
+
+The menu has one switch: **AR: चालू / बंद**. On by default on Android, greyed out everywhere else.
+
+With AR on, starting a lesson goes: scan the floor → tap to place → the room drops onto the real
+floor as a hologram → the lesson begins. If ARCore is missing, refuses, or does not come up within
+six seconds, the app says so and runs the identical lesson in 3D. That fallback is a requirement,
+not a nicety — the PS promises a plain phone can still learn and pass.
+
+| | |
+|---|---|
+| Room scale | `ArRoomScale = 0.28` → a 9 × 7 m workshop becomes 2.5 × 2 m on the floor |
+| Why a diorama | A walk-in room needs ~7 m of clear ground, and a 0.9 m near wall hides most of the floor from eye height. AR builds the shell in `RoomView.Cutaway`: no ceiling, no near wall. |
+| Picking | Tap the prop. No reticle, no hover — the finger is the aim. |
+| Anchoring | The room follows the detected plane by stored offset, so it survives ARCore merging planes. |
+
+Full-scale is one constant away (`ArRoomScale = 1f`) if you have the floor space and want to stand
+inside the fire. Worth trying on stage; not worth trying in a hall.
 
 ---
 
@@ -97,7 +122,23 @@ On first open Unity will:
 1. Resolve AR Foundation 6.7.0 / ARCore 6.7.0 / Newtonsoft from `Packages/manifest.json`
 2. Ask to enable the **Input System** backend → say **Yes** (editor restarts)
 3. Generate `Library/` and the missing `ProjectSettings/*.asset` defaults
+4. Create `00_Boot.unity` **and** assign the ARCore loader for Android under
+   `Project Settings > XR Plug-in Management` (menu: **Suraksha → Set up project** to re-run)
 
+Step 4 is not cosmetic. Without the ARCore loader assigned, `ARSession` never gets a subsystem,
+`ARSession.state` stays `None`, and every phone silently falls back to 3D — which looks exactly
+like "AR isn't supported" rather than "the loader is not configured".
+
+### Verify it compiles
+
+```bash
+"C:\Program Files\Unity\Hub\Editor\6000.3.6f1\Editor\Unity.exe" ^
+  -batchmode -quit -projectPath "E:\Games\ar" ^
+  -executeMethod Suraksha.Build.ProjectSetup.Setup ^
+  -logFile "E:\Games\ar\Library\compile.log"
+```
+
+Exit code 0 and `ARCore loader assigned for Android` in the log means the editor side is healthy.
 Then follow `PROCEDURE.md` Phase 1.
 
 ---
@@ -119,7 +160,7 @@ python tools/check_room_bindings.py            # every step must be reachable in
 option ids have no tappable object in the room is unanswerable — the worst possible bug in a
 training app, and one no compiler will ever catch.
 
-Current output: Hindi complete (142 keys, 0 missing), Santali 0/142. **The Santali table must be
+Current output: Hindi complete (148 keys, 0 missing), Santali 0/148. **The Santali table must be
 filled by a native speaker, not machine-translated.** The `TODO-SAT:` prefixes are deliberate —
 they make it impossible to accidentally ship untranslated safety instructions as if they were real.
 
@@ -129,7 +170,8 @@ they make it impossible to accidentally ship untranslated safety instructions as
 
 | Limit | Why it is acceptable now | Fix |
 |---|---|---|
-| No ARCore placement | The 3D rig, room and runner are the same objects AR will drive | Phase 3 |
+| AR never compiled on a device | The AR layer is written against the real 6.7.0 API surface, read from the package source, not from memory — but the Unity Package Manager cannot start in this environment, so nothing has been compiled or run | Open in the Editor once, then build to a phone |
+| AR is a diorama, not a walk-in | 2.5 m of floor instead of 7 m, and the whole room is visible at once | `ArRoomScale = 1f` |
 | No QR image | The token is real and signed; only the matrix is missing | ZXing, Phase 5 |
 | No recorded voice | Tones prove the audio path; prompts are on screen | Native voice talent, Phase 3 |
 | Devanagari shaping | Unity's legacy `Text` does no OpenType shaping, so a few conjuncts render imperfectly. Short strings mostly survive. | TMP + pre-shaped atlas |

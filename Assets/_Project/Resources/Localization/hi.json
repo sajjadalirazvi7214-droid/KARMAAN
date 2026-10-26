@@ -206,5 +206,15 @@
   "ui.cert.revoked": "रद्द",
   "ui.trainer.locked": "तीन बार गलत। ट्रेनर से बात करो।",
   "ui.trainer.pin": "ट्रेनर पिन",
-  "ui.offline.on": "बिना इंटरनेट चल रहा है"
+  "ui.offline.on": "बिना इंटरनेट चल रहा है",
+  "ui.ar.on": "AR: चालू",
+  "ui.ar.off": "AR: बंद",
+  "ui.ar.unavailable": "AR: यहाँ नहीं",
+  "ar.scan.title": "फ़ोन को फ़र्श पर घुमाओ",
+  "ar.scan.hint": "फ़र्श दिखने तक धीरे घुमाओ, फिर जगह चुनने के लिए दबाओ",
+  "ar.scan.starting": "AR शुरू हो रहा है…",
+  "ar.scan.look": "फ़र्श ढूँढ रहे हैं… धीरे घुमाओ",
+  "ar.scan.ready": "जगह तैयार — फ़र्श पर दबाओ",
+  "ar.scan.miss": "फ़र्श नहीं मिला — फिर दबाओ",
+  "ar.fallback": "इस फ़ोन पर AR नहीं चलता — वही पाठ 3D में चलेगा"
 }

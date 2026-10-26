@@ -10,13 +10,16 @@ namespace Suraksha.Game
     /// AR mode reuses the exact same rig, room and lesson runner; only the camera's transform
     /// source changes (device pose instead of mouse look).
     /// </summary>
-    public sealed class PlayerRig : MonoBehaviour
+    public sealed class PlayerRig : MonoBehaviour, IViewRig
     {
         public Camera Cam { get; private set; }
         public Interactable Hovered { get; private set; }
 
         /// <summary>Only objects this returns true for can be highlighted or tapped.</summary>
-        public System.Func<Interactable, bool> Filter;
+        public System.Func<Interactable, bool> Filter { get; set; }
+
+        /// <summary>3D mode aims with a fixed reticle, so it always shows one.</summary>
+        public bool ShowReticle { get { return true; } }
 
         public float Sensitivity = 3.0f;
         public float Reach = 7f;
@@ -100,6 +103,16 @@ namespace Suraksha.Game
             if (_highlighted != null) _highlighted.SetHighlighted(true);
 
             Hovered = candidate;
+        }
+
+        /// <summary>
+        /// In 3D mode the reticle is already the answer: whatever the centre ray is on. The screen
+        /// position is ignored on purpose — a mouse click and a thumb tap must behave identically,
+        /// and the reticle is what the worker is actually aiming with.
+        /// </summary>
+        public Interactable PickAt(Vector2 screenPoint)
+        {
+            return Hovered;
         }
 
         /// <summary>Clears hover state without destroying the rig (used between steps).</summary>

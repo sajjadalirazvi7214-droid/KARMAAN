@@ -143,13 +143,17 @@ in code; the spec is the source of truth and maps to MVTR schedules.
 
 | ID | Task | Done when |
 |---|---|---|
-| **P3.1** | Blender: low-poly hostel/shed room, 3 extinguisher bottles (red ABC, blue CO2, water), blocked main door, green side exit, white muster ring. **< 50k tris total.** | glTF exports, imports under 50k tris |
-| **P3.2** | AR placement: plane detection + tap-to-place room rig. Retry-safe. | Room lands on a real table/floor |
-| **P3.3** | Marker fallback: printed A4 marker for dark/dusty sheds. | Marker anchors the rig reliably |
-| **P3.4** | Interaction: raycast tap on doors/bottles, walk-to-exit check, PASS sweep gesture. | Each of the 5 steps can be completed by hand |
-| **P3.5** | Hazard VFX: smoke, flame, spark — cheap particles, mobile-safe. | Holds 30 fps on Redmi Note 10 |
-| **P3.6** | Voice: 5 step prompts + 5 corrections, Hindi + Santali, each **< 8 s**. | Every line plays, no dead audio |
-| **P3.7** | 3D fallback mode for the same lesson (gyro look, no ARCore). | Full fire test passes with AR disabled |
+| **P3.1** | ~~Blender: low-poly room + props~~ **Superseded** — rooms are built procedurally from primitives in `RoomBuilder.cs`. Under 5k tris, ~60 draw calls, no import step, no licence risk. Blender models can replace the primitives behind the same option ids later. | ✅ Built — `RoomBuilder.Build()` |
+| **P3.2** | AR placement: plane detection + tap-to-place room rig. Retry-safe. | ✅ Built (`ArSessionHost` + `ArPlacement`); ❌ **not run on a device yet** |
+| **P3.3** | Marker fallback: printed A4 marker for dark/dusty sheds. | ❌ Not built — plane detection only |
+| **P3.4** | Interaction: tap on doors/bottles, PASS sweep gesture, tap-to-pick in AR. | ✅ Built — 24 bindings, `check_room_bindings.py` passes |
+| **P3.5** | Hazard VFX: flame flicker, glow, spark — no ParticleSystem. | ✅ Built (`Flicker.cs`); 30 fps unverified on device |
+| **P3.6** | Voice: 5 step prompts + 5 corrections, Hindi + Santali, each **< 8 s**. | ❌ Not recorded — generated tones only |
+| **P3.7** | 3D fallback mode for the same lesson (no ARCore). | ✅ Built and playable in the Editor today |
+
+**P3.2 note.** AR is a *diorama* (`ArRoomScale = 0.28`), not a walk-in room: a walk-in needs ~7 m of
+clear floor and a near wall at eye height hides most of it. `RoomView.Cutaway` drops the ceiling and
+the near wall for AR and keeps them for the 3D fallback. Full scale is one constant away.
 
 Fire must-pass gates (from spec): alarm in 10 s · correct bottle (blue CO2) · PASS at base ·
 second exit · muster order.
@@ -355,8 +359,12 @@ E:\Games\ar\
    │   ├─ Prim.cs                ← primitive + material helpers
    │   ├─ Flicker.cs             ← fire/light animation
    │   ├─ ToneBank.cs            ← generated audio, no assets
-   │   └─ InputBridge.cs         ← legacy / new Input System abstraction
-   ├─ Scripts\AR\                ← (empty — Phase 3)
+   │   ├─ IViewRig.cs            ← the AR seam: where is the viewer, what are they pointing at
+   │   ├─ InputBridge.cs         ← legacy / new Input System abstraction
+   ├─ Scripts\AR\                ← ARCore, device only
+   │   ├─ ArSessionHost.cs       ← session + XR Origin + pose driver, built in code
+   │   ├─ ArPlacement.cs         ← keeps the room glued to its plane
+   │   └─ ArViewRig.cs           ← tap-to-pick viewer
    ├─ Resources\Lessons\         ← fire.json, gas.json
    ├─ Resources\Localization\    ← hi.json (complete), sat-olchiki.json (0% — stubs)
    ├─ Resources\Fonts\           ← Noto Sans Devanagari + Ol Chiki (OFL)
@@ -364,8 +372,9 @@ E:\Games\ar\
    └─ Art\ Audio\ Prefabs\ Scenes\ Settings\
 ```
 
-**Phase status:** P0 blocked (Android module). P1/P2/P3-partial/P6-partial done — the game plays
-in 3D mode with both required modules. AR placement, recorded voice, QR image and the dashboard
+**Phase status:** P0 blocked (Android module). P1/P2/P3 (except marker, voice, device test)/P6-partial
+done — the game plays in 3D mode with both required modules, and AR mode is wired but has never
+been compiled or run on a phone. Recorded voice, QR image, marker anchoring and the dashboard
 remain.
 
 ---

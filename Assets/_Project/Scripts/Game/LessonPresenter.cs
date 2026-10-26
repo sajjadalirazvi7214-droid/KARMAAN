@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using Suraksha.AR;
 using Suraksha.Bootstrap;
 using Suraksha.Core;
 using UnityEngine;
+using UnityEngine.XR.ARFoundation;
 
 namespace Suraksha.Game
 {
@@ -18,6 +20,17 @@ namespace Suraksha.Game
     {
         private const float LockedHoldSeconds = 3f;
 
+        /// <summary>
+        /// How much of the real world the room occupies in AR.
+        ///
+        /// 0.28 puts a 9 m x 7 m workshop on the floor as a 2.5 m x 2 m hologram. That number is a
+        /// compromise between two failures: bigger and you need an empty hall to place it, smaller
+        /// and the CO2 bottle is four centimetres tall and no one can hit it with a thumb. Set to
+        /// 1f for a full-scale room, which needs about 7 m of clear floor and is genuinely
+        /// immersive — worth doing for a stage demo, not for a table in a hall.
+        /// </summary>
+        private const float ArRoomScale = 0.28f;
+
         public event Action<ScoreReport, string> Completed;
         public event Action Abandoned;
 
@@ -26,7 +39,9 @@ namespace Suraksha.Game
         private LessonDef _lesson;
         private LessonRunner _runner;
         private BuiltRoom _room;
-        private PlayerRig _rig;
+        private IViewRig _rig;
+        private ArSessionHost _ar;
+        private bool _useAr;
 
         private StepDef _step;
         private float _stepTimer;
@@ -41,25 +56,145 @@ namespace Suraksha.Game
         private readonly HashSet<string> _picked = new HashSet<string>();
         private readonly Dictionary<string, NameTag> _tags = new Dictionary<string, NameTag>();
 
-        public static LessonPresenter Create(GameRoot root, GameUI ui, LessonDef lesson)
+        public static LessonPresenter Create(GameRoot root, GameUI ui, LessonDef lesson, bool useAr)
         {
             var go = new GameObject("LessonPresenter");
             var presenter = go.AddComponent<LessonPresenter>();
             presenter._root = root;
             presenter._ui = ui;
             presenter._lesson = lesson;
+            presenter._useAr = useAr;
             presenter.Begin();
             return presenter;
         }
 
         public void Begin()
         {
-            _room = RoomBuilder.Build(_lesson.lessonId, transform);
+            _ui.ShowHud(_lesson.titleKey);
+
+            if (_useAr) BeginAr();
+            else BeginThreeD();
+        }
+
+        // ------------------------------------------------------------------ 3D
+
+        private void BeginThreeD()
+        {
+            _room = RoomBuilder.Build(_lesson.lessonId, transform, RoomView.Enclosed);
             _rig = PlayerRig.Create(transform, _room.PlayerStart, _room.PlayerLookAt);
 
-            BuildTags();
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+
+            StartRunner();
+        }
+
+        // ------------------------------------------------------------------ AR
+
+        private void BeginAr()
+        {
+            _ui.ShowArScan(_loc.Get("ar.scan.title"), _loc.Get("ar.scan.hint"), AbandonToMenu);
+            _ar = ArSessionHost.Create(transform);
+        }
+
+        /// <summary>
+        /// Drives the AR handshake: wait for tracking, wait for a tap on the floor, place the room.
+        /// Runs before the runner exists, so nothing is timed or scored while the worker is still
+        /// pointing the phone at the ground.
+        /// </summary>
+        private void TickArPlacement()
+        {
+            _ar.Tick(Time.deltaTime);
+
+            if (_ar.Failure != null)
+            {
+                FallBackToThreeD(_ar.Failure);
+                return;
+            }
+
+            if (!_ar.Ready)
+            {
+                _ui.SetArScanStatus(_loc.Get("ar.scan.starting"));
+                return;
+            }
+
+            _ui.SetArScanStatus(_loc.Get(_ar.AnyPlaneSeen ? "ar.scan.ready" : "ar.scan.look"));
+
+            if (!InputBridge.TapDown) return;
+            if (_ui.IsOverUi) return;
+
+            Pose pose;
+            ARPlane plane;
+            if (!_ar.TryRaycastPlane(InputBridge.PointerPosition, out pose, out plane))
+            {
+                ToneBank.Wrong();
+                _ui.SetArScanStatus(_loc.Get("ar.scan.miss"));
+                return;
+            }
+
+            PlaceRoom(pose, plane);
+        }
+
+        private void PlaceRoom(Pose pose, ARPlane plane)
+        {
+            _ui.HideArScan();
+
+            // The scan panel hid the HUD; the runner is about to write into it.
+            _ui.ShowHud(_lesson.titleKey);
+
+            _ar.StopPlaneDetection();
+
+            // Put the room's near edge where the worker tapped, not its centre. Tapping a metre
+            // ahead and having half the room end up behind you is how you lose the demo.
+            var forward = Quaternion.Euler(0f, _ar.ViewerYaw, 0f) * Vector3.forward;
+            var centre = pose.position + forward * (RoomBuilder.HalfDepthMeters * ArRoomScale);
+
+            var placement = ArPlacement.Create(transform, plane,
+                new Pose(centre, Quaternion.identity), _ar.ViewerYaw);
+
+            NameTag.SizeMultiplier = 1.7f;
+
+            _room = RoomBuilder.Build(_lesson.lessonId, placement.transform, RoomView.Cutaway);
+            _room.Root.transform.localScale = Vector3.one * ArRoomScale;
+            RoomBuilder.ScaleLightRanges(_room.Root, ArRoomScale);
+
+            _rig = ArViewRig.Create(_ar.Camera);
+
+            StartRunner();
+        }
+
+        /// <summary>
+        /// ARCore is missing, refused, or too slow. Say so plainly, then teach the same lesson in
+        /// the same room on the same phone. This is not a degraded mode — the PS requires it.
+        /// </summary>
+        private void FallBackToThreeD(string reason)
+        {
+            Debug.LogWarning("[Presenter] falling back to 3D: " + reason);
+
+            _ui.HideArScan();
+
+            if (_ar != null)
+            {
+                Destroy(_ar.gameObject);
+                _ar = null;
+            }
 
             _ui.ShowHud(_lesson.titleKey);
+            _ui.SetHint(_loc.Get("ar.fallback"), true);
+            BeginThreeD();
+        }
+
+        private void AbandonToMenu()
+        {
+            var handler = Abandoned;
+            if (handler != null) handler();
+        }
+
+        // ------------------------------------------------------------------ runner
+
+        private void StartRunner()
+        {
+            BuildTags();
 
             _runner = new LessonRunner(_lesson);
             _runner.StepPresented += OnStepPresented;
@@ -67,9 +202,6 @@ namespace Suraksha.Game
             _runner.Finished += OnFinished;
             _runner.Locked += OnLocked;
             _runner.Start();
-
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
         }
 
         // ---------------------------------------------------------------- tags
@@ -181,6 +313,14 @@ namespace Suraksha.Game
 
         private void Update()
         {
+            // Before the room exists there is no runner, no score and no clock — only the AR
+            // handshake. Keeping it first means no lesson timer can start until the room is placed.
+            if (_ar != null && _room == null)
+            {
+                TickArPlacement();
+                return;
+            }
+
             if (_runner == null || _quizzing) return;
 
             if (_runner.State == RunnerState.Locked)
@@ -217,12 +357,12 @@ namespace Suraksha.Game
                 if (remaining < 4f) _ui.SetHint("⏱ " + Mathf.CeilToInt(remaining), true);
             }
 
-            _ui.SetReticle(_rig != null && _rig.Hovered != null);
+            _ui.SetReticle(_rig != null && _rig.ShowReticle && _rig.Hovered != null);
 
             if (!InputBridge.TapDown) return;
             if (_ui.IsOverUi) return;
 
-            var hit = _rig != null ? _rig.Hovered : null;
+            var hit = _rig != null ? _rig.PickAt(InputBridge.PointerPosition) : null;
             if (hit == null) return;
 
             HandleTap(hit);
@@ -409,6 +549,16 @@ namespace Suraksha.Game
 
             if (_room != null) _room.Destroy();
             if (_rig != null) _rig.Dispose();
+
+            if (_ar != null)
+            {
+                Destroy(_ar.gameObject);
+                _ar = null;
+            }
+
+            // Static label sizing is set by AR placement; leaving it up would give the next 3D
+            // lesson labels 70% too large.
+            NameTag.SizeMultiplier = 1f;
 
             _tags.Clear();
             _room = null;

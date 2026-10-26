@@ -23,11 +23,13 @@ namespace Suraksha.Game
         private RectTransform _menuRoot;
         private RectTransform _hudRoot;
         private RectTransform _resultRoot;
+        private RectTransform _arRoot;
 
         private UIText _lessonTitle;
         private UIText _counter;
         private UIText _prompt;
         private UIText _hint;
+        private UIText _arStatus;
         private UIImage _reticle;
         private UIImage _flash;
         private readonly System.Collections.Generic.List<UIImage> _stepDots =
@@ -57,19 +59,23 @@ namespace Suraksha.Game
             _menuRoot = UiKit.Stretch(UiKit.Node(_canvas.transform, "MenuRoot"));
             _hudRoot = UiKit.Stretch(UiKit.Node(_canvas.transform, "HudRoot"));
             _resultRoot = UiKit.Stretch(UiKit.Node(_canvas.transform, "ResultRoot"));
+            _arRoot = UiKit.Stretch(UiKit.Node(_canvas.transform, "ArRoot"));
 
             _hudRoot.gameObject.SetActive(false);
             _resultRoot.gameObject.SetActive(false);
+            _arRoot.gameObject.SetActive(false);
 
             BuildHud();
         }
 
         // ------------------------------------------------------------------ menu
 
-        public void ShowMenu(Action<string> onLesson, Action<AppLanguage> onLanguage)
+        public void ShowMenu(Action<string> onLesson, Action<AppLanguage> onLanguage,
+            Action onToggleAr, bool arSupported, bool arEnabled)
         {
             _hudRoot.gameObject.SetActive(false);
             _resultRoot.gameObject.SetActive(false);
+            _arRoot.gameObject.SetActive(false);
             _menuRoot.gameObject.SetActive(true);
             UiKit.Clear(_menuRoot);
 
@@ -112,6 +118,8 @@ namespace Suraksha.Game
                 new Color(0.15f, 0.55f, 0.85f), 260f, "gas", onLesson);
             gas.background.color = new Color(0.08f, 0.17f, 0.26f);
 
+            BuildArToggle(card.transform, onToggleAr, arSupported, arEnabled);
+
             var footer = UiKit.Label(card.transform, "Footer",
                 "SIH 26041 · Team JKSS · " + _loc.LocaleId, 22, new Color(0.45f, 0.49f, 0.55f));
             UiKit.Place((RectTransform)footer.transform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
@@ -144,6 +152,86 @@ namespace Suraksha.Game
                 new Vector2(0f, 0f), new Vector2(12f, 190f));
 
             return button;
+        }
+
+        /// <summary>
+        /// AR on/off. Deliberately a single visible switch rather than a settings screen: a worker
+        /// at a training centre needs to know which mode they are in before they start, not to
+        /// discover it halfway through a fire.
+        /// </summary>
+        private void BuildArToggle(Transform parent, Action onToggle, bool supported, bool enabled)
+        {
+            var text = supported
+                ? _loc.Get(enabled ? "ui.ar.on" : "ui.ar.off")
+                : _loc.Get("ui.ar.unavailable");
+
+            var button = UiKit.Button(parent, "BtnAr", text, new Vector2(0f, 0f),
+                new Vector2(240f, 96f), new Vector2(300f, 92f), supported ? onToggle : null,
+                _loc.Script == ScriptMode.OlChiki);
+
+            button.label.fontSize = 30;
+
+            Color colour;
+            if (!supported) colour = new Color(0.16f, 0.17f, 0.19f);
+            else if (enabled) colour = new Color(0.10f, 0.50f, 0.33f);
+            else colour = new Color(0.22f, 0.24f, 0.28f);
+
+            button.background.color = colour;
+            button.idleColor = colour;
+            button.hoverColor = supported
+                ? new Color(colour.r * 1.4f, colour.g * 1.4f, colour.b * 1.4f)
+                : colour;
+        }
+
+        // ------------------------------------------------------------------ ar scan
+
+        /// <summary>
+        /// The screen between pressing a lesson and the room existing: point the phone at the
+        /// floor. Shown before the runner starts, so nothing is timed while the worker is still
+        /// finding a patch of ground.
+        /// </summary>
+        public void ShowArScan(string title, string hint, Action onCancel)
+        {
+            _menuRoot.gameObject.SetActive(false);
+            _hudRoot.gameObject.SetActive(false);
+            _resultRoot.gameObject.SetActive(false);
+            _arRoot.gameObject.SetActive(true);
+            UiKit.Clear(_arRoot);
+
+            var bg = UiKit.Panel(_arRoot, "Bg", new Color(0.02f, 0.03f, 0.05f, 0.92f));
+            UiKit.Stretch((RectTransform)bg.transform);
+
+            var titleLabel = UiKit.Label(_arRoot, "ArTitle", title, 56, UiKit.Ink);
+            UiKit.Place((RectTransform)titleLabel.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
+                new Vector2(0f, -140f), new Vector2(1200f, 90f));
+
+            // Filled on the first Update by SetArScanStatus. Starting empty rather than with the
+            // static hint keeps the two lines from saying the same thing on frame one.
+            _arStatus = UiKit.Label(_arRoot, "ArStatus", string.Empty, 40, UiKit.Warn);
+            UiKit.Place((RectTransform)_arStatus.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                new Vector2(0f, 40f), new Vector2(1280f, 160f));
+
+            var hintLabel = UiKit.Label(_arRoot, "ArHint", hint, 30, UiKit.Muted);
+            UiKit.Place((RectTransform)hintLabel.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                new Vector2(0f, -120f), new Vector2(1200f, 120f));
+
+            var cancel = UiKit.Button(_arRoot, "BtnArCancel", _loc.Get("ui.menu"), new Vector2(0.5f, 0f),
+                new Vector2(0f, 120f), new Vector2(420f, 96f), onCancel, _loc.Script == ScriptMode.OlChiki);
+            cancel.label.fontSize = 34;
+            cancel.background.color = new Color(0.24f, 0.26f, 0.30f);
+            cancel.idleColor = cancel.background.color;
+        }
+
+        public void SetArScanStatus(string text)
+        {
+            if (_arStatus == null || _arStatus.text == text) return;
+            _arStatus.text = text;
+        }
+
+        public void HideArScan()
+        {
+            if (_arRoot != null) _arRoot.gameObject.SetActive(false);
+            _arStatus = null;
         }
 
         // ------------------------------------------------------------------ hud
@@ -181,6 +269,7 @@ namespace Suraksha.Game
         {
             _menuRoot.gameObject.SetActive(false);
             _resultRoot.gameObject.SetActive(false);
+            _arRoot.gameObject.SetActive(false);
             _hudRoot.gameObject.SetActive(true);
 
             _lessonTitle.text = _loc.Get(lessonTitleKey);
@@ -257,6 +346,7 @@ namespace Suraksha.Game
         {
             _hudRoot.gameObject.SetActive(false);
             _menuRoot.gameObject.SetActive(false);
+            _arRoot.gameObject.SetActive(false);
             _resultRoot.gameObject.SetActive(true);
             UiKit.Clear(_resultRoot);
 
@@ -336,6 +426,7 @@ namespace Suraksha.Game
         {
             _hudRoot.gameObject.SetActive(false);
             _menuRoot.gameObject.SetActive(false);
+            _arRoot.gameObject.SetActive(false);
             _resultRoot.gameObject.SetActive(true);
             UiKit.Clear(_resultRoot);
 

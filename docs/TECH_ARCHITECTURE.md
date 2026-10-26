@@ -79,19 +79,33 @@ attempt.
 | `ToneBank.cs` | Generated audio — alarm, beep, correct, wrong |
 | `InputBridge.cs` | Legacy / new Input System abstraction |
 
+### Built — AR (`Scripts/AR`)
+
+| File | Responsibility |
+|---|---|
+| `ArSessionHost.cs` | Builds `ARSession` + `ARInputManager` + `XROrigin` + `ARCameraManager` + `ARCameraBackground` + `TrackedPoseDriver` + `ARRaycastManager` + `ARPlaneManager` in code. Probes availability, times out at 6 s, reports a reason code. |
+| `ArPlacement.cs` | Keeps the placed room glued to the plane it was dropped on, by remembering the offset in the plane's frame — survives the plane being subsumed. |
+| `ArViewRig.cs` | `IViewRig` for AR: the device camera is the viewer, a tap on the screen picks a prop. |
+| `Game/IViewRig.cs` | The seam. `PlayerRig` (3D) and `ArViewRig` (AR) both implement it; nothing above it knows which is running. |
+
 ### Next (Phase 3+)
 
 | File | Responsibility | Phase |
 |---|---|---|
-| `AR/ArSessionController.cs` | ARCore session lifecycle, availability probe, fallback trigger | 3 |
-| `AR/PlanePlacer.cs` | Tap-to-place the same room root on a detected plane | 3 |
-| `AR/MarkerAnchor.cs` | Printed A4 marker anchoring for dark sheds | 3 |
-| `AR/DevicePoseDriver.cs` | Drive `PlayerRig.Cam` from device pose instead of mouse look | 3 |
+| `AR/MarkerAnchor.cs` | Printed A4 marker anchoring for dark sheds where plane detection fails | 3 |
 | `UI/TrainerPanel.cs` | PIN, unlock, batch weak map | 6 |
 
-**The AR seam:** `PlayerRig.Create(...)` takes a position and a look target and owns a `Camera`.
-AR mode replaces the *pose source* — the device — and leaves the room, the runner, the scoring
-and the HUD untouched. That is why the fallback was built first rather than last.
+**The AR seam:** `IViewRig` answers two questions — where is the viewer, and what are they
+pointing at. `PlayerRig` answers with a mouse-look camera and a centre reticle. `ArViewRig` answers
+with the device camera and the tap position. The room, the runner, the scoring and the HUD never
+learn which one is running, which is why the 3D fallback was built first rather than last.
+
+**Why AR is a diorama, not a walk-in room.** At `ArRoomScale = 0.28` the 9 × 7 m workshop becomes
+a 2.5 × 2 m hologram on the floor. Two reasons: a walk-in room needs about 7 m of clear ground that
+a training centre does not have, and — the deciding one — from eye height a 0.9 m near wall one
+metre away hides everything closer than 2.5 m, which is most of the room. So AR builds the shell in
+`RoomView.Cutaway`: no ceiling, no near wall, roll-call board moved to the west wall. The 3D
+fallback keeps the room enclosed because you are standing inside it.
 
 ---
 

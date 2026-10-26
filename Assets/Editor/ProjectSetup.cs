@@ -1,10 +1,14 @@
 #if UNITY_EDITOR
+using System;
 using System.IO;
 using Suraksha.Bootstrap;
 using UnityEditor;
 using UnityEditor.SceneManagement;
+using UnityEditor.XR.Management;
+using UnityEditor.XR.Management.Metadata;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.XR.Management;
 
 namespace Suraksha.Build
 {
@@ -19,21 +23,27 @@ namespace Suraksha.Build
     {
         private const string SceneFolder = "Assets/_Project/Scenes";
         private const string ScenePath = SceneFolder + "/00_Boot.unity";
+        private const string XrFolder = "Assets/XR";
+        private const string XrSettingsPath = XrFolder + "/XRGeneralSettingsPerBuildTarget.asset";
 
         /// <summary>
-        /// Runs once on first open, when the boot scene does not exist yet. Without this the
-        /// project opens on an empty untitled scene and pressing Play does nothing, which reads
-        /// as "the build is broken" rather than "run the setup menu item".
+        /// Runs once on first open, when either the boot scene or the XR settings are missing.
+        /// Without this the project opens on an empty untitled scene and pressing Play does
+        /// nothing, which reads as "the build is broken" rather than "run the setup menu item".
         /// </summary>
         [InitializeOnLoadMethod]
         private static void AutoSetupOnFirstOpen()
         {
             EditorApplication.delayCall += () =>
             {
-                if (File.Exists(ScenePath)) return;
                 if (EditorApplication.isPlayingOrWillChangePlaymode) return;
 
-                Debug.Log("[Suraksha] First open — creating the boot scene.");
+                var needsScene = !File.Exists(ScenePath);
+                var needsXr = AssetDatabase.LoadAssetAtPath<XRGeneralSettingsPerBuildTarget>(XrSettingsPath) == null;
+
+                if (!needsScene && !needsXr) return;
+
+                Debug.Log("[Suraksha] First open — creating boot scene / XR settings.");
                 Setup();
             };
         }
@@ -43,19 +53,21 @@ namespace Suraksha.Build
         {
             EnsureFolders();
             ConfigurePlayerSettings();
+            ConfigureXr();
             var created = CreateBootScene();
             RegisterScene();
 
             Debug.Log(
                 "[Suraksha] Project setup complete." +
                 (created ? " Boot scene created." : " Boot scene already existed.") +
-                "\nNext: Project Settings > XR Plug-in Management > Android tab > enable ARCore." +
+                "\nXR: ARCore loader assigned for Android (check Project Settings > XR Plug-in Management)." +
                 "\nIf you changed the input backend, restart the editor once.");
         }
 
         private static void EnsureFolders()
         {
             if (!Directory.Exists(SceneFolder)) Directory.CreateDirectory(SceneFolder);
+            if (!Directory.Exists(XrFolder)) Directory.CreateDirectory(XrFolder);
         }
 
         private static void ConfigurePlayerSettings()
@@ -104,6 +116,105 @@ namespace Suraksha.Build
                 settings.ApplyModifiedProperties();
                 Debug.Log("[Suraksha] Active Input Handling set to 'Both'. Restart the editor for it to take effect.");
             }
+        }
+
+        // ------------------------------------------------------------------ xr
+
+        /// <summary>
+        /// Assign the ARCore loader to the Android build target.
+        ///
+        /// This is the checkbox under Project Settings > XR Plug-in Management. Without it ARSession
+        /// never gets a subsystem, ARSession.state stays None, and the app silently drops to 3D on
+        /// every phone — the worst possible failure, because it looks like AR "just isn't supported".
+        /// Everything below uses the public XR Management editor API rather than writing
+        /// ProjectSettings YAML by hand.
+        /// </summary>
+        private static void ConfigureXr()
+        {
+            var settings = LoadOrCreateXrSettings();
+            if (settings == null)
+            {
+                Debug.LogWarning("[Suraksha] Could not create XR settings. Enable ARCore manually: " +
+                                 "Project Settings > XR Plug-in Management > Android.");
+                return;
+            }
+
+            if (!settings.HasManagerSettingsForBuildTarget(BuildTargetGroup.Android))
+            {
+                settings.CreateDefaultManagerSettingsForBuildTarget(BuildTargetGroup.Android);
+            }
+
+            var general = settings.SettingsForBuildTarget(BuildTargetGroup.Android);
+            if (general == null)
+            {
+                Debug.LogWarning("[Suraksha] No XR settings for Android after creation.");
+                return;
+            }
+
+            general.InitManagerOnStart = true;
+
+            var manager = settings.ManagerSettingsForBuildTarget(BuildTargetGroup.Android);
+            if (manager == null)
+            {
+                Debug.LogWarning("[Suraksha] No XR manager settings for Android after creation.");
+                return;
+            }
+
+            var loader = FindLoaderTypeName("ARCoreLoader");
+            if (loader == null)
+            {
+                Debug.LogWarning("[Suraksha] ARCore loader type not found. Is com.unity.xr.arcore installed?");
+                return;
+            }
+
+            if (!XRPackageMetadataStore.AssignLoader(manager, loader, BuildTargetGroup.Android))
+            {
+                Debug.LogWarning("[Suraksha] XR Management refused the ARCore loader. Enable it manually.");
+                return;
+            }
+
+            EditorUtility.SetDirty(settings);
+            AssetDatabase.SaveAssets();
+            Debug.Log("[Suraksha] ARCore loader assigned for Android.");
+        }
+
+        private static XRGeneralSettingsPerBuildTarget LoadOrCreateXrSettings()
+        {
+            var existing = AssetDatabase.LoadAssetAtPath<XRGeneralSettingsPerBuildTarget>(XrSettingsPath);
+            if (existing != null) return existing;
+
+            var created = ScriptableObject.CreateInstance<XRGeneralSettingsPerBuildTarget>();
+            AssetDatabase.CreateAsset(created, XrSettingsPath);
+
+            // XR Management finds its settings through a config object in EditorBuildSettings, not
+            // by scanning the project. Without this line the asset exists and is invisible.
+            EditorBuildSettings.AddConfigObject(XRGeneralSettings.k_SettingsKey, created, true);
+
+            AssetDatabase.SaveAssets();
+            return created;
+        }
+
+        /// <summary>
+        /// Find a loader by simple type name across every loaded assembly, rather than hardcoding
+        /// "UnityEngine.XR.ARCore.ARCoreLoader" and breaking silently on a package rename.
+        /// </summary>
+        private static string FindLoaderTypeName(string simpleName)
+        {
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+            for (var i = 0; i < assemblies.Length; i++)
+            {
+                Type[] types;
+                try { types = assemblies[i].GetTypes(); }
+                catch { continue; }
+
+                for (var t = 0; t < types.Length; t++)
+                {
+                    if (types[t].Name == simpleName) return types[t].FullName;
+                }
+            }
+
+            return null;
         }
 
         private static bool CreateBootScene()

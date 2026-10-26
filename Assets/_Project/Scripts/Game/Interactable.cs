@@ -69,7 +69,13 @@ namespace Suraksha.Game
             transform.localScale = on ? _baseScale * 1.06f : _baseScale;
         }
 
-        /// <summary>Permanent selection tint, used by the multi-pick PPE step.</summary>
+        /// <summary>
+        /// Permanent selection tint, used by the multi-pick PPE step.
+        ///
+        /// The selected colour becomes the new base, so that a later SetHighlighted(false) restores
+        /// green rather than the prop's original colour. Without this the tick marks disappear the
+        /// moment the reticle moves away from what the worker just picked.
+        /// </summary>
         public void SetSelected(bool on)
         {
             if (_materials == null) Cache();
@@ -79,10 +85,14 @@ namespace Suraksha.Game
             {
                 if (_materials[i] == null) continue;
                 _materials[i].color = on ? target : _baseColors[i];
+                if (on) _baseColors[i] = target;
             }
         }
 
-        /// <summary>Renders an object as "already used up" after it answered a step.</summary>
+        /// <summary>
+        /// Renders an object as "already used up" after it answered a step. The dimmed colour
+        /// becomes the base so hover-out does not undo it.
+        /// </summary>
         public void Fade()
         {
             if (_materials == null) Cache();
@@ -91,7 +101,9 @@ namespace Suraksha.Game
             {
                 if (_materials[i] == null) continue;
                 var c = _baseColors[i];
-                _materials[i].color = new Color(c.r * 0.45f, c.g * 0.45f, c.b * 0.45f, c.a);
+                var faded = new Color(c.r * 0.45f, c.g * 0.45f, c.b * 0.45f, c.a);
+                _materials[i].color = faded;
+                _baseColors[i] = faded;
             }
         }
     }

@@ -25,6 +25,19 @@ namespace Suraksha.Game
         private string _lastToken;
         private string _verifyResult;
 
+        /// <summary>
+        /// AR is only offered where ARCore can actually run. The Editor and a Windows standalone
+        /// build have no AR loader, so the switch is shown greyed out rather than failing at
+        /// lesson start — a control that does nothing is worse than no control.
+        /// </summary>
+        private static bool ArSupported
+        {
+            get { return Application.platform == RuntimePlatform.Android; }
+        }
+
+        /// <summary>Off in the Editor by default so pressing Play is instant.</summary>
+        private bool _arEnabled = ArSupported;
+
         public static AppFlow Create(GameRoot root)
         {
             if (Instance != null) return Instance;
@@ -105,7 +118,14 @@ namespace Suraksha.Game
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
 
-            _ui.ShowMenu(StartLesson, SetLanguage);
+            _ui.ShowMenu(StartLesson, SetLanguage, ToggleAr, ArSupported, _arEnabled);
+        }
+
+        private void ToggleAr()
+        {
+            if (!ArSupported) return;
+            _arEnabled = !_arEnabled;
+            ShowMenu();
         }
 
         private void SetLanguage(AppLanguage language)
@@ -141,7 +161,7 @@ namespace Suraksha.Game
                 return;
             }
 
-            _presenter = LessonPresenter.Create(_root, _ui, lesson);
+            _presenter = LessonPresenter.Create(_root, _ui, lesson, ArSupported && _arEnabled);
             _presenter.transform.SetParent(transform, false);
             _presenter.Completed += OnCompleted;
             _presenter.Abandoned += ShowMenu;

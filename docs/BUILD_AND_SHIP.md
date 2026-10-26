@@ -33,10 +33,20 @@ must exist. If it doesn't, the module didn't install.
 
 ### 1.3 XR
 
-Edit → Project Settings → **XR Plug-in Management** → **Android tab** → tick **ARCore**.
+`ProjectSetup.ConfigureXr()` assigns the ARCore loader automatically on first open — it creates
+`Assets/XR/XRGeneralSettingsPerBuildTarget.asset`, registers it in `EditorBuildSettings`, turns on
+**Initialize XR on Startup**, and assigns `ARCoreLoader` for Android.
+
+Verify by hand: Edit → Project Settings → **XR Plug-in Management** → **Android tab** → **ARCore**
+ticked.
 
 If the tab is missing, the ARCore package failed to resolve — check `Packages/manifest.json` and
 the Package Manager console.
+
+**Why this matters more than it looks.** With no loader assigned, `ARSession` never gets a
+subsystem. `ARSession.state` stays `None`, `ArSessionHost` times out after six seconds, and every
+phone quietly falls back to 3D. That is indistinguishable from "ARCore isn't supported here", so
+it is the single easiest way to ship an AR app that never shows AR. The build gate below catches it.
 
 ---
 

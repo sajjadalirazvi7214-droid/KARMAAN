@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.unity.ugui": "2.0.0",
     "com.unity.xr.arfoundation": "6.7.0",
     "com.unity.xr.arcore": "6.7.0",
     "com.unity.xr.management": "4.6.1",

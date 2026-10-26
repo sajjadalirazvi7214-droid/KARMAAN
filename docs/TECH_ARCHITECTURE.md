@@ -47,7 +47,7 @@ attempt.
 
 ## 3. Script inventory (what exists vs. what's next)
 
-### Built (in this scaffold — pure C#, no AR dependency)
+### Built — core (pure C#, no AR dependency)
 
 | File | Responsibility |
 |---|---|
@@ -55,26 +55,43 @@ attempt.
 | `Core/LessonRunner.cs` | State machine + event stream |
 | `Core/ScoreEngine.cs` | Scoring + pass/fail decision |
 | `Core/GuardrailRules.cs` | The six killer myths |
-| `Core/Localization.cs` | Key → string, script toggle |
+| `Core/Localization.cs` | Key → string, script toggle, pending-locale flag |
 | `Cert/CertService.cs` | Payload, canonical JSON, HMAC-SHA256, verify, expiry state |
 | `Sync/AttemptStore.cs` | Append-only JSONL queue with UUID dedupe |
+| `Content/LessonRepository.cs` | Pack loading + safety validation |
 | `Bootstrap/GameRoot.cs` | Wiring |
+| `Bootstrap/AppLauncher.cs` | Boot-scene entry point |
+
+### Built — the playable build (`Scripts/Game`)
+
+| File | Responsibility |
+|---|---|
+| `AppFlow.cs` | Menu → lesson → quiz → result state machine |
+| `LessonPresenter.cs` | Runner ↔ room ↔ HUD bridge; per-step input rules |
+| `RoomBuilder.cs` | Procedural grey-box rooms, 45 prims each, bound to option ids |
+| `PlayerRig.cs` | First-person camera, reticle raycast, step filter |
+| `GameUI.cs` | Every screen, built at runtime, no prefabs |
+| `UiKit.cs` | uGUI helpers + buttons that hit-test themselves |
+| `Interactable.cs` | Tappable prop bound to (stepId, optionId) |
+| `NameTag.cs` | Billboarded world-space labels |
+| `Prim.cs` | Primitive + material helpers |
+| `Flicker.cs` | Fire/light animation, no ParticleSystem |
+| `ToneBank.cs` | Generated audio — alarm, beep, correct, wrong |
+| `InputBridge.cs` | Legacy / new Input System abstraction |
 
 ### Next (Phase 3+)
 
 | File | Responsibility | Phase |
 |---|---|---|
 | `AR/ArSessionController.cs` | ARCore session lifecycle, availability probe, fallback trigger | 3 |
-| `AR/PlanePlacer.cs` | Tap-to-place room rig | 3 |
+| `AR/PlanePlacer.cs` | Tap-to-place the same room root on a detected plane | 3 |
 | `AR/MarkerAnchor.cs` | Printed A4 marker anchoring for dark sheds | 3 |
-| `AR/Interactable.cs` | Raycast targets (bottles, doors, PPE, switches) | 3 |
-| `AR/GyroFallbackCamera.cs` | Gyro-driven 3D mode, no ARCore | 3 |
-| `AR/PassSweepGesture.cs` | PASS gesture recognition | 3 |
-| `UI/LanguagePicker.cs` | Audio-preview language choice | 6 |
-| `UI/LessonCard.cs` | Big-icon lesson entry | 6 |
-| `UI/StepPromptView.cs` | Voice + icon + big buttons | 6 |
-| `UI/ResultView.cs` | Score, weak steps, QR | 6 |
+| `AR/DevicePoseDriver.cs` | Drive `PlayerRig.Cam` from device pose instead of mouse look | 3 |
 | `UI/TrainerPanel.cs` | PIN, unlock, batch weak map | 6 |
+
+**The AR seam:** `PlayerRig.Create(...)` takes a position and a look target and owns a `Camera`.
+AR mode replaces the *pose source* — the device — and leaves the room, the runner, the scoring
+and the HUD untouched. That is why the fallback was built first rather than last.
 
 ---
 

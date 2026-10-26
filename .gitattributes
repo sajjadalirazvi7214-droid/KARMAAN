@@ -1,0 +1,22 @@
+* text=auto
+
+*.cs text
+*.shader text
+*.cginc text
+*.json text
+*.md text
+*.unity text
+*.prefab text
+*.asset text
+*.mat text
+*.meta text
+*.txt text
+
+*.ttf binary
+*.otf binary
+*.png binary
+*.jpg binary
+*.wav binary
+*.mp3 binary
+*.apk binary
+*.aab binary

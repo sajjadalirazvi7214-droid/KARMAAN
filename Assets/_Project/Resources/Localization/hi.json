@@ -5,6 +5,7 @@
   "fire.alarm.prompt": "अलार्म बजा। सुनो।",
   "fire.alarm.voice": "अलार्म। नीचे झुककर चलो।",
   "fire.alarm.hint": "अलार्म सुनो, देर मत करो।",
+  "fire.alarm.label": "अलार्म",
 
   "fire.exit.prompt": "मुख्य दरवाज़ा बंद है। दूसरा रास्ता ढूँढो।",
   "fire.exit.voice": "मुख्य दरवाज़ा बंद है। दूसरा दरवाज़ा ढूँढो।",
@@ -23,6 +24,7 @@
   "fire.pass.prompt": "पिन खींचो, नीचे निशाना, दबाओ, झाड़ू।",
   "fire.pass.voice": "पिन खींचो। नीचे निशाना लो। दबाओ। झाड़ू जैसे फैलाओ।",
   "fire.pass.hint": "आग की जड़ पर निशाना। पानी नहीं।",
+  "fire.pass.label": "आग की जड़",
 
   "fire.muster.prompt": "सुरक्षित जगह पहुँचो। नाम गिनो।",
   "fire.muster.voice": "सफेद घेरे में आओ। नाम गिनो।",
@@ -64,6 +66,7 @@
   "gas.beep.prompt": "बीप बजी। लाल घेरा देखो।",
   "gas.beep.voice": "बीप। लाल घेरा। पास मत जाओ।",
   "gas.beep.hint": "बीप सुनो, रुको।",
+  "gas.beep.label": "गैस अलार्म",
 
   "gas.ppe.prompt": "तीन चीज़ें चुनो। तौलिया नहीं।",
   "gas.ppe.voice": "सिर्फ तीन। हेलमेट, मास्क, लैंप।",
@@ -175,6 +178,11 @@
   "guard.g6.blocked": "भागना",
   "guard.g6.fix": "भागो मत। रुको, गिरो, लुढ़को।",
 
+  "gesture.p1": "पिन खींचो",
+  "gesture.p2": "आग की जड़ पर निशाना",
+  "gesture.p3": "दबाओ",
+  "gesture.p4": "झाड़ू जैसे फैलाओ",
+
   "ui.lang.title": "भाषा चुनो",
   "ui.lang.hindi": "हिंदी",
   "ui.lang.santali": "संताली",
@@ -190,6 +198,8 @@
   "ui.result.weak": "कमज़ोर कदम",
   "ui.result.retry": "फिर करो",
   "ui.cert.title": "प्रमाण पत्र",
+  "ui.cert.verify": "जाँचो",
+  "ui.menu": "मेन्यू",
   "ui.cert.valid": "सही",
   "ui.cert.expired": "समय खत्म",
   "ui.cert.fake": "नकली",

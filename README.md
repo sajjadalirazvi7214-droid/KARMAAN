@@ -26,17 +26,44 @@ signed QR certificate. No headset, no internet, Hindi and Santali.
 |---|---|
 | Build procedure | ✅ Written and locked |
 | Game design (5 lessons) | ✅ Specified, mapped to MVTR schedules |
-| Unity project scaffold | ✅ Manifest, folder tree, build script |
-| Core rules engine (C#) | ✅ Written — runner, scoring, guardrails, localisation, cert, store |
+| Core rules engine (C#) | ✅ Runner, scoring, guardrails, cert, store |
+| **Playable game — 3D mode** | ✅ **Fire + Gas, full loop, runs in the Editor today** |
+| Grey-box rooms | ✅ 45 primitives each, coloured, name-tagged |
 | Lesson packs (Fire, Gas) | ✅ JSON, validated |
-| Hindi strings | ✅ 162 keys, 0 missing |
+| Hindi strings | ✅ 171 keys, 0 missing |
 | Santali strings | ⚠️ **0% — stubs only, needs native QA in Dumka/Pakur** |
-| AR layer | ❌ Not started (Phase 3) |
-| UI layer | ❌ Not started (Phase 6) |
+| QR **image** | ❌ Needs ZXing (Phase 5). The signed token and offline verify already work. |
+| AR mode (ARCore plane placement) | ❌ Phase 3 — the rig is built to accept it, not yet wired |
+| Voice tracks (Hindi/Santali) | ❌ Phase 3 — tones are generated, speech is not recorded |
 | Android APK | ❌ **Blocked — Android Build Support not installed** |
-| Dashboard / server | ❌ Not started (Phase 6.5) |
+| Dashboard / server | ❌ Phase 6 |
 
-The game does **not** run yet. What exists is the part that decides pass/fail, plus the plan.
+**The game plays now, in the Editor, in 3D mode.** It is a grey-box: coloured shapes with
+floating name tags, not modelled art. That is the intended build order — prove the loop, then
+replace the props.
+
+---
+
+## Play it
+
+1. Open the project in Unity `6000.3.6f1`. On first open it creates `00_Boot.unity` automatically
+   (menu: **Suraksha → Set up project** if you want to re-run it).
+2. Press **Play**.
+
+| Control | Action |
+|---|---|
+| Mouse | Look around |
+| Left click | Interact with whatever the reticle is on |
+| `Esc` | Leave the lesson, back to the menu |
+
+Pick a language, pick a lesson, then work through five steps. The reticle turns green when you
+are aiming at something that answers the current step. Get three steps wrong and the lesson
+locks for three seconds — the demo stand-in for fetching a trainer.
+
+**Fire lesson:** alarm → second exit → right bottle → PASS → muster.
+**Gas lesson:** beep → three PPE → buddy → fan/permit/meter → refuse entry.
+
+Then a six-question quiz, a score, and a signed certificate token you can verify on the spot.
 
 ---
 
@@ -80,13 +107,34 @@ Then follow `PROCEDURE.md` Phase 1.
 Every lesson key must resolve, or a worker hits a blank step mid-lesson.
 
 ```bash
-python tools/check_localisation.py            # check
+python tools/check_localisation.py             # check
 python tools/check_localisation.py --scaffold  # add stubs for new keys
+python tools/check_room_bindings.py            # every step must be reachable in the room
 ```
 
-Current output: Hindi complete, Santali 0/122. **The Santali table must be filled by a native
-speaker, not machine-translated.** The `TODO-SAT:` prefixes are deliberate — they make it
-impossible to accidentally ship untranslated safety instructions as if they were real.
+`check_localisation.py` scans lesson packs **and** C# lookups **and** name-tag keys, so a typo in
+`_loc.Get("ui.result.weakk")` fails the build instead of blanking a screen.
+
+`check_room_bindings.py` cross-checks the lesson packs against `RoomBuilder.cs`. A step whose
+option ids have no tappable object in the room is unanswerable — the worst possible bug in a
+training app, and one no compiler will ever catch.
+
+Current output: Hindi complete (142 keys, 0 missing), Santali 0/142. **The Santali table must be
+filled by a native speaker, not machine-translated.** The `TODO-SAT:` prefixes are deliberate —
+they make it impossible to accidentally ship untranslated safety instructions as if they were real.
+
+---
+
+## Known limits of this build
+
+| Limit | Why it is acceptable now | Fix |
+|---|---|---|
+| No ARCore placement | The 3D rig, room and runner are the same objects AR will drive | Phase 3 |
+| No QR image | The token is real and signed; only the matrix is missing | ZXing, Phase 5 |
+| No recorded voice | Tones prove the audio path; prompts are on screen | Native voice talent, Phase 3 |
+| Devanagari shaping | Unity's legacy `Text` does no OpenType shaping, so a few conjuncts render imperfectly. Short strings mostly survive. | TMP + pre-shaped atlas |
+| Trainer lock is a 3-second hold | Models the workflow without a PIN UI | Phase 6 |
+| 5 lessons specified, 2 playable | PS only requires 2 modules in the demo | Phase 9 |
 
 ---
 

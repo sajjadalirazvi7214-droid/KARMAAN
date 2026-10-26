@@ -31,12 +31,25 @@ namespace Suraksha.Core
     /// </summary>
     public sealed class LocalizationService
     {
+        /// <summary>
+        /// Prefix that marks an entry as awaiting native translation. Stripped at load so it never
+        /// reaches the screen, but it makes "this locale is not really translated yet" a fact the
+        /// app knows about instead of a guess.
+        /// </summary>
+        public const string PendingPrefix = "TODO-SAT: ";
+
         private readonly Dictionary<string, Dictionary<string, string>> _tables =
             new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
+
+        private readonly Dictionary<string, bool> _pending =
+            new Dictionary<string, bool>(StringComparer.Ordinal);
 
         public AppLanguage Language { get; private set; } = AppLanguage.Hindi;
         public ScriptMode Script { get; private set; } = ScriptMode.Devanagari;
         public string LocaleId { get; private set; } = "hi";
+
+        /// <summary>True when the active locale still contains untranslated stubs. UI shows a chip.</summary>
+        public bool LocaleIsPending { get; private set; }
 
         public static string LocaleIdFor(AppLanguage language, ScriptMode script)
         {
@@ -51,7 +64,20 @@ namespace Suraksha.Core
 
             var flat = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
             if (flat == null) throw new FormatException("Locale '" + localeId + "' did not parse to a key/value map.");
+
+            var pending = false;
+            foreach (var key in new List<string>(flat.Keys))
+            {
+                var value = flat[key];
+                if (value != null && value.StartsWith(PendingPrefix, StringComparison.Ordinal))
+                {
+                    flat[key] = value.Substring(PendingPrefix.Length);
+                    pending = true;
+                }
+            }
+
             _tables[localeId] = flat;
+            _pending[localeId] = pending;
         }
 
         public void SetLocale(AppLanguage language, ScriptMode script)
@@ -67,6 +93,9 @@ namespace Suraksha.Core
             Language = language;
             Script = script;
             LocaleId = id;
+
+            bool pending;
+            LocaleIsPending = _pending.TryGetValue(id, out pending) && pending;
         }
 
         public bool TryGet(string key, out string value)

@@ -323,35 +323,50 @@ before the rules engine is finished, or the art becomes the critical path.
 ```
 E:\Games\ar\
 ├─ PROCEDURE.md                  ← this file
-├─ README.md                     ← quick start + current state
+├─ README.md                     ← quick start, controls, known limits
 ├─ docs\
 │  ├─ GAME_DESIGN_SPEC.md        ← the 5 lessons, exact steps, must-pass, scoring, guardrails
 │  ├─ TECH_ARCHITECTURE.md       ← Unity structure, script inventory, data flow
 │  └─ BUILD_AND_SHIP.md          ← Android setup, build settings, ship checklist
-├─ Packages\manifest.json        ← AR Foundation 6.7.0, ARCore 6.7.0, XR Mgmt, Newtonsoft
+├─ Packages\manifest.json        ← AR Foundation 6.7.0, ARCore 6.7.0, XR Mgmt, ugui, Newtonsoft
 ├─ ProjectSettings\ProjectVersion.txt
 ├─ tools\
-│  ├─ check_localisation.py      ← build gate: every key exists, Santali coverage report
-│  └─ extract_pdfs.py            ← source-material text extraction (kept for traceability)
-├─ Assets\Editor\BuildPipeline.cs ← headless APK build, fails loudly
+│  ├─ check_localisation.py      ← gate: every key resolves (packs + C# + name tags)
+│  ├─ check_room_bindings.py     ← gate: every step has a tappable object in the room
+│  └─ extract_pdfs.py            ← source-material text extraction
+├─ Assets\Editor\
+│  ├─ BuildPipeline.cs           ← headless APK build, fails loudly
+│  └─ ProjectSetup.cs            ← one-click setup, auto-creates the boot scene
 └─ Assets\_Project\
    ├─ Scripts\Core\              ← LessonRunner, ScoreEngine, GuardrailRules, Localization, models
    ├─ Scripts\Cert\              ← HMAC-signed cert payload + verify
    ├─ Scripts\Sync\              ← append-only attempt queue
    ├─ Scripts\Content\           ← lesson pack loader + safety validator
-   ├─ Scripts\Bootstrap\         ← GameRoot
+   ├─ Scripts\Bootstrap\         ← GameRoot, AppLauncher
+   ├─ Scripts\Game\              ← THE PLAYABLE BUILD
+   │   ├─ AppFlow.cs             ← menu → lesson → quiz → result
+   │   ├─ LessonPresenter.cs     ← runner ↔ room ↔ HUD bridge
+   │   ├─ RoomBuilder.cs         ← procedural grey-box rooms (45 prims each)
+   │   ├─ PlayerRig.cs           ← first-person camera + reticle raycast
+   │   ├─ GameUI.cs              ← all screens, built at runtime
+   │   ├─ UiKit.cs               ← uGUI helpers + self-hit-testing buttons
+   │   ├─ Interactable.cs        ← tappable prop, bound to a step + option id
+   │   ├─ NameTag.cs             ← billboarded world-space labels
+   │   ├─ Prim.cs                ← primitive + material helpers
+   │   ├─ Flicker.cs             ← fire/light animation
+   │   ├─ ToneBank.cs            ← generated audio, no assets
+   │   └─ InputBridge.cs         ← legacy / new Input System abstraction
    ├─ Scripts\AR\                ← (empty — Phase 3)
-   ├─ Scripts\UI\                ← (empty — Phase 6)
    ├─ Resources\Lessons\         ← fire.json, gas.json
    ├─ Resources\Localization\    ← hi.json (complete), sat-olchiki.json (0% — stubs)
+   ├─ Resources\Fonts\           ← Noto Sans Devanagari + Ol Chiki (OFL)
    ├─ Resources\Settings\        ← cert_secret.txt (dev placeholder)
-   ├─ Art\ Audio\ Fonts\ Prefabs\ Scenes\ Settings\
-   └─ .gitignore (repo root)
+   └─ Art\ Audio\ Prefabs\ Scenes\ Settings\
 ```
 
-**Not yet built, by design:** no `.asmdef` files (P1.5, created in-Editor so reference names are
-real), no AR scripts (P3), no UI scripts (P6), no server (P6.5). Everything listed above is
-scaffold or working logic — not a claim that the game runs.
+**Phase status:** P0 blocked (Android module). P1/P2/P3-partial/P6-partial done — the game plays
+in 3D mode with both required modules. AR placement, recorded voice, QR image and the dashboard
+remain.
 
 ---
 

@@ -1,0 +1,200 @@
+{
+  "lesson.fire.title": "आग और विस्फोट",
+  "lesson.gas.title": "गैस और बंद कमरा",
+
+  "fire.alarm.prompt": "अलार्म बजा। सुनो।",
+  "fire.alarm.voice": "अलार्म। नीचे झुककर चलो।",
+  "fire.alarm.hint": "अलार्म सुनो, देर मत करो।",
+
+  "fire.exit.prompt": "मुख्य दरवाज़ा बंद है। दूसरा रास्ता ढूँढो।",
+  "fire.exit.voice": "मुख्य दरवाज़ा बंद है। दूसरा दरवाज़ा ढूँढो।",
+  "fire.exit.hint": "मुख्य दरवाज़ा लाल है। हरा तीर देखो।",
+  "fire.exit.main": "मुख्य दरवाज़ा",
+  "fire.exit.side": "बगल का दरवाज़ा",
+  "fire.exit.window": "खिड़की",
+
+  "fire.bottle.prompt": "तार की आग है। कौन सी बोतल?",
+  "fire.bottle.voice": "तार की आग। कौन सी बोतल लोगे?",
+  "fire.bottle.hint": "तार की आग में पानी नहीं। नीली बोतल।",
+  "fire.bottle.red": "लाल पाउडर",
+  "fire.bottle.blue": "नीली CO2",
+  "fire.bottle.water": "पानी की बाल्टी",
+
+  "fire.pass.prompt": "पिन खींचो, नीचे निशाना, दबाओ, झाड़ू।",
+  "fire.pass.voice": "पिन खींचो। नीचे निशाना लो। दबाओ। झाड़ू जैसे फैलाओ।",
+  "fire.pass.hint": "आग की जड़ पर निशाना। पानी नहीं।",
+
+  "fire.muster.prompt": "सुरक्षित जगह पहुँचो। नाम गिनो।",
+  "fire.muster.voice": "सफेद घेरे में आओ। नाम गिनो।",
+  "fire.muster.hint": "दरवाज़ा बंद करो, घेरे में जाओ, नाम गिनो।",
+  "fire.muster.close": "दरवाज़ा बंद करो",
+  "fire.muster.ring": "सफेद घेरे में जाओ",
+  "fire.muster.roll": "नाम गिनो",
+
+  "fire.q1": "तार की आग में कौन सा साधन सही है?",
+  "fire.q1.a": "पानी",
+  "fire.q1.b": "CO2",
+  "fire.q1.c": "गीला कपड़ा",
+
+  "fire.q2": "आग लगने पर सबसे पहले क्या करते हैं?",
+  "fire.q2.a": "सामान बचाते हैं",
+  "fire.q2.b": "दौड़कर भागते हैं",
+  "fire.q2.c": "अलार्म देते हैं और नीचे झुककर निकलते हैं",
+
+  "fire.q3": "धुएँ में कैसे चलते हैं?",
+  "fire.q3.a": "नीचे झुककर",
+  "fire.q3.b": "सीधे खड़े होकर",
+  "fire.q3.c": "दौड़कर",
+
+  "fire.q4": "मुख्य दरवाज़ा बंद हो तो क्या करते हैं?",
+  "fire.q4.a": "उसी को खोलते हैं",
+  "fire.q4.b": "दूसरा रास्ता ढूँढते हैं",
+  "fire.q4.c": "खिड़की तोड़ते हैं",
+
+  "fire.q5": "PASS का मतलब क्या है?",
+  "fire.q5.a": "दबाओ, भागो, बचाओ",
+  "fire.q5.b": "पानी, हवा, रेत",
+  "fire.q5.c": "पिन खींचो, निशाना, दबाओ, झाड़ू",
+
+  "fire.q6": "सुरक्षित जगह पहुँचकर क्या करते हैं?",
+  "fire.q6.a": "नाम गिनते हैं",
+  "fire.q6.b": "फोटो लेते हैं",
+  "fire.q6.c": "वापस अंदर जाते हैं",
+
+  "gas.beep.prompt": "बीप बजी। लाल घेरा देखो।",
+  "gas.beep.voice": "बीप। लाल घेरा। पास मत जाओ।",
+  "gas.beep.hint": "बीप सुनो, रुको।",
+
+  "gas.ppe.prompt": "तीन चीज़ें चुनो। तौलिया नहीं।",
+  "gas.ppe.voice": "सिर्फ तीन। हेलमेट, मास्क, लैंप।",
+  "gas.ppe.hint": "हेलमेट, मास्क, लैंप। बाकी रखो।",
+  "gas.ppe.helmet": "हेलमेट",
+  "gas.ppe.mask": "मास्क",
+  "gas.ppe.lamp": "हैंड लैंप",
+  "gas.ppe.meter": "गैस मीटर",
+  "gas.ppe.towel": "ढीला तौलिया",
+
+  "gas.buddy.prompt": "मोहन कहाँ है? उसे छुओ।",
+  "gas.buddy.voice": "अकेले कोई नहीं जाता। मोहन को छुओ।",
+  "gas.buddy.hint": "साथी के बिना अंदर नहीं।",
+  "gas.buddy.mohan": "मोहन साथ है",
+  "gas.buddy.alone": "अकेले जाऊँगा",
+
+  "gas.checks.prompt": "पंखा, परमिट, मीटर — तीनों देखो।",
+  "gas.checks.voice": "पंखा चालू है? परमिट साइन है? मीटर क्या कहता है?",
+  "gas.checks.hint": "तीनों जाँचो, फिर आगे बढ़ो।",
+  "gas.checks.fan": "पंखा चालू है",
+  "gas.checks.permit": "परमिट साइन है",
+  "gas.checks.meter": "मीटर पढ़ा",
+
+  "gas.high.prompt": "मीटर ज़्यादा दिखा रहा है।",
+  "gas.high.voice": "मीटर ज़्यादा है। अंदर मत जाओ।",
+  "gas.high.hint": "मीटर ज़्यादा है तो अंदर नहीं।",
+  "gas.high.enter": "अंदर जाओ",
+  "gas.high.noentry": "अंदर मत जाओ",
+
+  "gas.q1": "गैस की गंध आए तो क्या करते हैं?",
+  "gas.q1.a": "स्विच ऑन करते हैं",
+  "gas.q1.b": "फोन जलाते हैं",
+  "gas.q1.c": "बाहर निकलते हैं, फिर बताते हैं",
+
+  "gas.q2": "गैस वाली जगह में कितने लोग जाते हैं?",
+  "gas.q2.a": "दो, साथी के साथ",
+  "gas.q2.b": "अकेले",
+  "gas.q2.c": "जितने चाहें",
+
+  "gas.q3": "मीटर ज़्यादा दिखाए तो क्या करते हैं?",
+  "gas.q3.a": "जल्दी अंदर जाते हैं",
+  "gas.q3.b": "अंदर नहीं जाते",
+  "gas.q3.c": "मीटर बंद करते हैं",
+
+  "gas.q4": "मास्क कब पहनते हैं?",
+  "gas.q4.a": "बाद में",
+  "gas.q4.b": "सिर्फ फोटो में",
+  "gas.q4.c": "अंदर जाने से पहले",
+
+  "gas.q5": "गैस वाली जगह में कौन सा कपड़ा नहीं पहनते?",
+  "gas.q5.a": "ढीला तौलिया",
+  "gas.q5.b": "फिट जैकेट",
+  "gas.q5.c": "फिट पैंट",
+
+  "gas.q6": "साथी जाँच का मतलब क्या है?",
+  "gas.q6.a": "अकेले जाओ",
+  "gas.q6.b": "साथी साथ है, पक्का करो",
+  "gas.q6.c": "बाद में देखेंगे",
+
+  "fire.exit.main.voice": "मुख्य दरवाज़ा",
+  "fire.exit.side.voice": "बगल का दरवाज़ा",
+  "fire.exit.window.voice": "खिड़की",
+
+  "fire.bottle.red.voice": "लाल पाउडर",
+  "fire.bottle.blue.voice": "नीली CO2",
+  "fire.bottle.water.voice": "पानी की बाल्टी",
+
+  "fire.muster.close.voice": "दरवाज़ा बंद करो",
+  "fire.muster.ring.voice": "सफेद घेरे में जाओ",
+  "fire.muster.roll.voice": "नाम गिनो",
+
+  "gas.ppe.helmet.voice": "हेलमेट",
+  "gas.ppe.mask.voice": "मास्क",
+  "gas.ppe.lamp.voice": "हैंड लैंप",
+  "gas.ppe.meter.voice": "गैस मीटर",
+  "gas.ppe.towel.voice": "ढीला तौलिया",
+
+  "gas.buddy.mohan.voice": "मोहन साथ है",
+  "gas.buddy.alone.voice": "अकेले जाऊँगा",
+
+  "gas.checks.fan.voice": "पंखा चालू है",
+  "gas.checks.permit.voice": "परमिट साइन है",
+  "gas.checks.meter.voice": "मीटर पढ़ा",
+
+  "gas.high.enter.voice": "अंदर जाओ",
+  "gas.high.noentry.voice": "अंदर मत जाओ",
+
+  "guard.g1.name": "बिजली की आग में पानी",
+  "guard.g1.blocked": "पानी डालना",
+  "guard.g1.fix": "बिजली की आग में पानी नहीं। नीली CO2 या सूखी रेत। फिर कोशिश करो।",
+
+  "guard.g2.name": "तेल की आग में पानी",
+  "guard.g2.blocked": "पानी डालना",
+  "guard.g2.fix": "तेल की आग में पानी नहीं। झाग या CO2। पानी आग फैलाता है।",
+
+  "guard.g3.name": "गैस में चिंगारी",
+  "guard.g3.blocked": "स्विच या फोन जलाना",
+  "guard.g3.fix": "गैस में स्विच नहीं, फोन नहीं। बाहर निकलो, फिर बताओ।",
+
+  "guard.g4.name": "मशीन के पास ढीला कपड़ा",
+  "guard.g4.blocked": "ढीले कपड़े से सफाई",
+  "guard.g4.fix": "ढीला कपड़ा अंदर खिंचता है। पहले बाँधो।",
+
+  "guard.g5.name": "टूटे हेलमेट पर टेप",
+  "guard.g5.blocked": "टेप लगाना",
+  "guard.g5.fix": "टूटा हेलमेट कबाड़ है। नया लो।",
+
+  "guard.g6.name": "कपड़े में आग, भागना",
+  "guard.g6.blocked": "भागना",
+  "guard.g6.fix": "भागो मत। रुको, गिरो, लुढ़को।",
+
+  "ui.lang.title": "भाषा चुनो",
+  "ui.lang.hindi": "हिंदी",
+  "ui.lang.santali": "संताली",
+  "ui.lang.script.olchiki": "ओल चिकी",
+  "ui.lang.script.deva": "देवनागरी",
+  "ui.lang.listen": "सुनो",
+  "ui.lesson.point": "फोन को कमरे की तरफ रखो",
+  "ui.step.correct": "बहुत बढ़िया",
+  "ui.step.tryagain": "फिर कोशिश करो",
+  "ui.result.pass": "पास",
+  "ui.result.fail": "फिर सीखो",
+  "ui.result.score": "अंक",
+  "ui.result.weak": "कमज़ोर कदम",
+  "ui.result.retry": "फिर करो",
+  "ui.cert.title": "प्रमाण पत्र",
+  "ui.cert.valid": "सही",
+  "ui.cert.expired": "समय खत्म",
+  "ui.cert.fake": "नकली",
+  "ui.cert.revoked": "रद्द",
+  "ui.trainer.locked": "तीन बार गलत। ट्रेनर से बात करो।",
+  "ui.trainer.pin": "ट्रेनर पिन",
+  "ui.offline.on": "बिना इंटरनेट चल रहा है"
+}

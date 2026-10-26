@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "lessonId": "fire",
+  "displayOrder": 1,
+  "titleKey": "lesson.fire.title",
+  "passScore": 70,
+  "timeLimitSec": 300,
+  "benchmarkSec": 180,
+  "steps": [
+    {
+      "id": "fire_alarm",
+      "kind": "Reaction",
+      "mustPass": true,
+      "timeLimitSec": 10,
+      "promptKey": "fire.alarm.prompt",
+      "voiceKey": "fire.alarm.voice",
+      "failHintKey": "fire.alarm.hint",
+      "options": [],
+      "requiredOptionIds": [],
+      "guardrailIds": []
+    },
+    {
+      "id": "fire_exit",
+      "kind": "Choose",
+      "mustPass": true,
+      "timeLimitSec": 20,
+      "promptKey": "fire.exit.prompt",
+      "voiceKey": "fire.exit.voice",
+      "failHintKey": "fire.exit.hint",
+      "correctOptionId": "side_exit",
+      "requiredOptionIds": [],
+      "guardrailIds": [],
+      "options": [
+        { "id": "main_door", "labelKey": "fire.exit.main", "voiceKey": "fire.exit.main.voice", "isCorrect": false, "guardrailId": "" },
+        { "id": "side_exit", "labelKey": "fire.exit.side", "voiceKey": "fire.exit.side.voice", "isCorrect": true, "guardrailId": "" },
+        { "id": "window", "labelKey": "fire.exit.window", "voiceKey": "fire.exit.window.voice", "isCorrect": false, "guardrailId": "" }
+      ]
+    },
+    {
+      "id": "fire_bottle",
+      "kind": "Choose",
+      "mustPass": true,
+      "timeLimitSec": 15,
+      "promptKey": "fire.bottle.prompt",
+      "voiceKey": "fire.bottle.voice",
+      "failHintKey": "fire.bottle.hint",
+      "correctOptionId": "blue_co2",
+      "requiredOptionIds": [],
+      "guardrailIds": ["G1"],
+      "options": [
+        { "id": "red_abc", "labelKey": "fire.bottle.red", "voiceKey": "fire.bottle.red.voice", "isCorrect": false, "guardrailId": "" },
+        { "id": "blue_co2", "labelKey": "fire.bottle.blue", "voiceKey": "fire.bottle.blue.voice", "isCorrect": true, "guardrailId": "" },
+        { "id": "water", "labelKey": "fire.bottle.water", "voiceKey": "fire.bottle.water.voice", "isCorrect": false, "guardrailId": "G1" }
+      ]
+    },
+    {
+      "id": "fire_pass",
+      "kind": "Gesture",
+      "mustPass": true,
+      "timeLimitSec": 25,
+      "promptKey": "fire.pass.prompt",
+      "voiceKey": "fire.pass.voice",
+      "failHintKey": "fire.pass.hint",
+      "options": [],
+      "requiredOptionIds": [],
+      "guardrailIds": ["G1"]
+    },
+    {
+      "id": "fire_muster",
+      "kind": "Sequence",
+      "mustPass": true,
+      "timeLimitSec": 20,
+      "promptKey": "fire.muster.prompt",
+      "voiceKey": "fire.muster.voice",
+      "failHintKey": "fire.muster.hint",
+      "options": [
+        { "id": "close_door", "labelKey": "fire.muster.close", "voiceKey": "fire.muster.close.voice", "isCorrect": true, "guardrailId": "" },
+        { "id": "reach_ring", "labelKey": "fire.muster.ring", "voiceKey": "fire.muster.ring.voice", "isCorrect": true, "guardrailId": "" },
+        { "id": "roll_call", "labelKey": "fire.muster.roll", "voiceKey": "fire.muster.roll.voice", "isCorrect": true, "guardrailId": "" }
+      ],
+      "requiredOptionIds": ["close_door", "reach_ring", "roll_call"],
+      "guardrailIds": []
+    }
+  ],
+  "quiz": [
+    { "id": "fire_q1", "promptKey": "fire.q1", "optionKeys": ["fire.q1.a", "fire.q1.b", "fire.q1.c"], "correctIndex": 1 },
+    { "id": "fire_q2", "promptKey": "fire.q2", "optionKeys": ["fire.q2.a", "fire.q2.b", "fire.q2.c"], "correctIndex": 2 },
+    { "id": "fire_q3", "promptKey": "fire.q3", "optionKeys": ["fire.q3.a", "fire.q3.b", "fire.q3.c"], "correctIndex": 0 },
+    { "id": "fire_q4", "promptKey": "fire.q4", "optionKeys": ["fire.q4.a", "fire.q4.b", "fire.q4.c"], "correctIndex": 1 },
+    { "id": "fire_q5", "promptKey": "fire.q5", "optionKeys": ["fire.q5.a", "fire.q5.b", "fire.q5.c"], "correctIndex": 2 },
+    { "id": "fire_q6", "promptKey": "fire.q6", "optionKeys": ["fire.q6.a", "fire.q6.b", "fire.q6.c"], "correctIndex": 0 }
+  ]
+}

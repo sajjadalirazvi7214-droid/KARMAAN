@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "lessonId": "gas",
+  "displayOrder": 2,
+  "titleKey": "lesson.gas.title",
+  "passScore": 70,
+  "timeLimitSec": 300,
+  "benchmarkSec": 180,
+  "steps": [
+    {
+      "id": "gas_beep",
+      "kind": "Reaction",
+      "mustPass": true,
+      "timeLimitSec": 8,
+      "promptKey": "gas.beep.prompt",
+      "voiceKey": "gas.beep.voice",
+      "failHintKey": "gas.beep.hint",
+      "options": [],
+      "requiredOptionIds": [],
+      "guardrailIds": []
+    },
+    {
+      "id": "gas_ppe",
+      "kind": "Choose",
+      "mustPass": true,
+      "timeLimitSec": 30,
+      "promptKey": "gas.ppe.prompt",
+      "voiceKey": "gas.ppe.voice",
+      "failHintKey": "gas.ppe.hint",
+      "correctOptionId": "",
+      "requiredOptionIds": ["helmet", "mask", "lamp"],
+      "guardrailIds": ["G4"],
+      "options": [
+        { "id": "helmet", "labelKey": "gas.ppe.helmet", "voiceKey": "gas.ppe.helmet.voice", "isCorrect": true, "guardrailId": "" },
+        { "id": "mask", "labelKey": "gas.ppe.mask", "voiceKey": "gas.ppe.mask.voice", "isCorrect": true, "guardrailId": "" },
+        { "id": "lamp", "labelKey": "gas.ppe.lamp", "voiceKey": "gas.ppe.lamp.voice", "isCorrect": true, "guardrailId": "" },
+        { "id": "meter", "labelKey": "gas.ppe.meter", "voiceKey": "gas.ppe.meter.voice", "isCorrect": false, "guardrailId": "" },
+        { "id": "towel", "labelKey": "gas.ppe.towel", "voiceKey": "gas.ppe.towel.voice", "isCorrect": false, "guardrailId": "G4" }
+      ]
+    },
+    {
+      "id": "gas_buddy",
+      "kind": "Locate",
+      "mustPass": true,
+      "timeLimitSec": 20,
+      "promptKey": "gas.buddy.prompt",
+      "voiceKey": "gas.buddy.voice",
+      "failHintKey": "gas.buddy.hint",
+      "correctOptionId": "mohan",
+      "requiredOptionIds": [],
+      "guardrailIds": [],
+      "options": [
+        { "id": "mohan", "labelKey": "gas.buddy.mohan", "voiceKey": "gas.buddy.mohan.voice", "isCorrect": true, "guardrailId": "" },
+        { "id": "alone", "labelKey": "gas.buddy.alone", "voiceKey": "gas.buddy.alone.voice", "isCorrect": false, "guardrailId": "" }
+      ]
+    },
+    {
+      "id": "gas_checks",
+      "kind": "Sequence",
+      "mustPass": true,
+      "timeLimitSec": 25,
+      "promptKey": "gas.checks.prompt",
+      "voiceKey": "gas.checks.voice",
+      "failHintKey": "gas.checks.hint",
+      "options": [
+        { "id": "fan", "labelKey": "gas.checks.fan", "voiceKey": "gas.checks.fan.voice", "isCorrect": true, "guardrailId": "" },
+        { "id": "permit", "labelKey": "gas.checks.permit", "voiceKey": "gas.checks.permit.voice", "isCorrect": true, "guardrailId": "" },
+        { "id": "meter", "labelKey": "gas.checks.meter", "voiceKey": "gas.checks.meter.voice", "isCorrect": true, "guardrailId": "" }
+      ],
+      "requiredOptionIds": ["fan", "permit", "meter"],
+      "guardrailIds": []
+    },
+    {
+      "id": "gas_high_meter",
+      "kind": "Choose",
+      "mustPass": true,
+      "timeLimitSec": 20,
+      "promptKey": "gas.high.prompt",
+      "voiceKey": "gas.high.voice",
+      "failHintKey": "gas.high.hint",
+      "correctOptionId": "no_entry",
+      "requiredOptionIds": [],
+      "guardrailIds": ["G3"],
+      "options": [
+        { "id": "enter", "labelKey": "gas.high.enter", "voiceKey": "gas.high.enter.voice", "isCorrect": false, "guardrailId": "G3" },
+        { "id": "no_entry", "labelKey": "gas.high.noentry", "voiceKey": "gas.high.noentry.voice", "isCorrect": true, "guardrailId": "" }
+      ]
+    }
+  ],
+  "quiz": [
+    { "id": "gas_q1", "promptKey": "gas.q1", "optionKeys": ["gas.q1.a", "gas.q1.b", "gas.q1.c"], "correctIndex": 2 },
+    { "id": "gas_q2", "promptKey": "gas.q2", "optionKeys": ["gas.q2.a", "gas.q2.b", "gas.q2.c"], "correctIndex": 0 },
+    { "id": "gas_q3", "promptKey": "gas.q3", "optionKeys": ["gas.q3.a", "gas.q3.b", "gas.q3.c"], "correctIndex": 1 },
+    { "id": "gas_q4", "promptKey": "gas.q4", "optionKeys": ["gas.q4.a", "gas.q4.b", "gas.q4.c"], "correctIndex": 2 },
+    { "id": "gas_q5", "promptKey": "gas.q5", "optionKeys": ["gas.q5.a", "gas.q5.b", "gas.q5.c"], "correctIndex": 0 },
+    { "id": "gas_q6", "promptKey": "gas.q6", "optionKeys": ["gas.q6.a", "gas.q6.b", "gas.q6.c"], "correctIndex": 1 }
+  ]
+}

@@ -21,7 +21,7 @@ must exist. If it doesn't, the module didn't install.
 | Setting | Value | Where |
 |---|---|---|
 | Platform | Android | Build Profiles |
-| Package name | `in.jh.suraksha.ar` | Player → Other Settings |
+| Package name | `in.jh.karmaan.ar` | Player → Other Settings |
 | Minimum API Level | **29** (Android 10 — the PS floor) | Player → Other Settings |
 | Target API Level | Highest installed | Player → Other Settings |
 | Scripting backend | **IL2CPP** | Player → Other Settings |
@@ -73,7 +73,7 @@ it is the single easiest way to ship an AR app that never shows AR. The build ga
 "C:/Program Files/Unity/Hub/Editor/6000.3.6f1/Editor/Unity.exe" \
   -quit -batchmode -nographics \
   -projectPath "E:/Games/ar" \
-  -executeMethod Suraksha.Build.BuildPipeline.BuildAndroid \
+  -executeMethod Karmaan.Build.BuildPipeline.BuildAndroid \
   -logFile "E:/Games/ar/Builds/build.log"
 ```
 
@@ -96,7 +96,7 @@ Output → `E:/Games/ar/Builds/`.
 
 | Item | Location |
 |---|---|
-| APK | `Builds/KhanSurakshaAR-v1.0.apk` |
+| APK | `Builds/Karmaan-v1.0.apk` |
 | Demo film (3 min) | external link |
 | Public GitHub | repo root |
 | Judge one-pager | `docs/GAME_DESIGN_SPEC.md` §1–3 |

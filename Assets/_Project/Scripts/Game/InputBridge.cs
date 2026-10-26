@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 #endif
 
-namespace Suraksha.Game
+namespace Karmaan.Game
 {
     /// <summary>
     /// One thin door to input, because this project can legitimately end up in three states:

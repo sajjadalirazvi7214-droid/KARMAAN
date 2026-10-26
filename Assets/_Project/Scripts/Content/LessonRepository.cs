@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using Suraksha.Core;
+using Karmaan.Core;
 using UnityEngine;
 
-namespace Suraksha.Content
+namespace Karmaan.Content
 {
     /// <summary>
     /// Loads lesson packs and refuses to run a lesson that is internally inconsistent.

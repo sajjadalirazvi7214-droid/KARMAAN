@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Suraksha.Game
+namespace Karmaan.Game
 {
     /// <summary>
     /// First-person camera + reticle raycast.

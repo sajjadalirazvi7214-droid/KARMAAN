@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Suraksha.Core
+namespace Karmaan.Core
 {
     /// <summary>How a worker is expected to answer a step.</summary>
     public enum StepKind

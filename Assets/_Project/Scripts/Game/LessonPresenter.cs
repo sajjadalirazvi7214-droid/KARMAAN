@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using Suraksha.AR;
-using Suraksha.Bootstrap;
-using Suraksha.Core;
+using Karmaan.AR;
+using Karmaan.Bootstrap;
+using Karmaan.Core;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 
-namespace Suraksha.Game
+namespace Karmaan.Game
 {
     /// <summary>
     /// The bridge between the rules engine, the 3D room and the HUD.

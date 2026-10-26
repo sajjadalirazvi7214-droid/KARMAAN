@@ -6,7 +6,7 @@ using UnityEngine.InputSystem.XR;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 
-namespace Suraksha.AR
+namespace Karmaan.AR
 {
     /// <summary>
     /// Builds and owns an ARCore session at runtime, and honestly reports when it cannot.

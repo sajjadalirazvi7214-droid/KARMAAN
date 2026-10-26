@@ -1,11 +1,11 @@
 using System;
-using Suraksha.Cert;
-using Suraksha.Content;
-using Suraksha.Core;
-using Suraksha.Sync;
+using Karmaan.Cert;
+using Karmaan.Content;
+using Karmaan.Core;
+using Karmaan.Sync;
 using UnityEngine;
 
-namespace Suraksha.Bootstrap
+namespace Karmaan.Bootstrap
 {
     /// <summary>
     /// The one persistent object in the app. Owns every service and survives scene loads,

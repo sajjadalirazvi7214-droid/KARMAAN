@@ -1,4 +1,4 @@
-# GAME DESIGN SPEC — KHAN SURAKSHA AR
+# GAME DESIGN SPEC — KARMAAN
 
 **Rule:** this document is the source of truth. Code implements this. If a step is not here, it does
 not exist. If a step here is not traceable to a citation, it must be fixed or deleted.

@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Suraksha.AR
+namespace Karmaan.AR
 {
     /// <summary>
     /// AR mode's viewer: the device camera, and taps instead of a reticle.

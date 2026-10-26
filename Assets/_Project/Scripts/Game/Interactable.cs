@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Suraksha.Game
+namespace Karmaan.Game
 {
     /// <summary>
     /// A thing in the room the worker can aim at and tap. It knows which lesson step it answers

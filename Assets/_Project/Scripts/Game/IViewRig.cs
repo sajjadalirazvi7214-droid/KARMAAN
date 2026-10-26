@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Suraksha.Game
+namespace Karmaan.Game
 {
     /// <summary>
     /// "Where is the viewer, and what are they pointing at?"

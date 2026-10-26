@@ -1,10 +1,10 @@
 using System;
-using Suraksha.Bootstrap;
-using Suraksha.Cert;
-using Suraksha.Core;
+using Karmaan.Bootstrap;
+using Karmaan.Cert;
+using Karmaan.Core;
 using UnityEngine;
 
-namespace Suraksha.Game
+namespace Karmaan.Game
 {
     /// <summary>
     /// Top-level state machine: menu -> lesson -> quiz -> result -> menu.

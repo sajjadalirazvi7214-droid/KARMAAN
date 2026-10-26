@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Suraksha.Game
+namespace Karmaan.Game
 {
     /// <summary>
     /// Every sound in the demo build is generated as a sine wave at runtime. No audio assets,

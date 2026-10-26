@@ -1,10 +1,10 @@
 using System;
-using Suraksha.Core;
+using Karmaan.Core;
 using UnityEngine;
 using UIImage = UnityEngine.UI.Image;
 using UIText = UnityEngine.UI.Text;
 
-namespace Suraksha.Game
+namespace Karmaan.Game
 {
     /// <summary>
     /// All screens, built at runtime. No prefabs, no scene YAML.
@@ -86,7 +86,7 @@ namespace Suraksha.Game
             UiKit.Place((RectTransform)card.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                 Vector2.zero, new Vector2(1180f, 760f));
 
-            var title = UiKit.Label(card.transform, "Title", "खान सुरक्षा AR", 72, UiKit.Ink);
+            var title = UiKit.Label(card.transform, "Title", _loc.Get("ui.app.name"), 76, UiKit.Ink);
             UiKit.Place((RectTransform)title.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
                 new Vector2(0f, -60f), new Vector2(1000f, 90f));
 

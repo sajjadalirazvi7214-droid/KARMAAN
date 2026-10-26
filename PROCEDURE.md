@@ -1,4 +1,4 @@
-# KHAN SURAKSHA AR — BUILD PROCEDURE (LOCKED)
+# KARMAAN — BUILD PROCEDURE (LOCKED)
 
 **Project:** AR-Based Vocational Training Simulator for Industrial Safety in Jharkhand
 **Problem Statement:** SIH 26041 · Govt. of Jharkhand · Dept. of Higher & Technical Education
@@ -108,10 +108,10 @@ because the criteria pass.
 | ID | Task | Done when |
 |---|---|---|
 | **P1.1** | First Unity open: accept Input System backend prompt (**Yes** → editor restarts). | No "input backends" warning |
-| **P1.2** | Switch platform to **Android**. Player Settings: package `in.jh.suraksha.ar`, min API **29** (Android 10), target API = highest installed, ARM64 only, IL2CPP. | Build Settings shows Android + ARM64 |
+| **P1.2** | Switch platform to **Android**. Player Settings: package `in.jh.karmaan.ar`, min API **29** (Android 10), target API = highest installed, ARM64 only, IL2CPP. | Build Settings shows Android + ARM64 |
 | **P1.3** | XR Plug-in Management → Android tab → enable **ARCore**. | ARCore checkbox ticked |
 | **P1.4** | Create 4 scenes: `00_Boot`, `01_Menu`, `02_Lesson`, `03_Result`. Add to Build Settings in that order. | 4 scenes, index 0 = Boot |
-| **P1.5** | Add assembly definitions: `Suraksha.Core`, `Suraksha.Content`, `Suraksha.Cert`, `Suraksha.Sync`, `Suraksha.AR`, `Suraksha.UI`. Core must not reference AR. | Compiles; Core has no AR dependency |
+| **P1.5** | Add assembly definitions: `Karmaan.Core`, `Karmaan.Content`, `Karmaan.Cert`, `Karmaan.Sync`, `Karmaan.AR`, `Karmaan.UI`. Core must not reference AR. | Compiles; Core has no AR dependency |
 | **P1.6** | `GameRoot` singleton in `00_Boot`, `DontDestroyOnLoad`. Loads settings, language, attempt store. | Survives scene load |
 
 **Why asmdefs on day 1:** it physically prevents the rules engine from accidentally depending on

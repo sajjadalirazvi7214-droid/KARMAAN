@@ -5,13 +5,13 @@ using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 
-namespace Suraksha.Build
+namespace Karmaan.Build
 {
     /// <summary>
     /// Headless APK build. Matches the command in docs/BUILD_AND_SHIP.md:
     ///
     ///   Unity.exe -quit -batchmode -nographics -projectPath E:/Games/ar \
-    ///     -executeMethod Suraksha.Editor.BuildPipeline.BuildAndroid \
+    ///     -executeMethod Karmaan.Build.BuildPipeline.BuildAndroid \
     ///     -logFile E:/Games/ar/Builds/build.log
     ///
     /// Fails loudly rather than producing a broken APK. A build that silently ships with the
@@ -20,9 +20,9 @@ namespace Suraksha.Build
     public static class BuildPipeline
     {
         private const string OutputDir = "Builds";
-        private const string ApkName = "KhanSurakshaAR-v1.0.apk";
+        private const string ApkName = "Karmaan-v1.0.apk";
 
-        [MenuItem("Suraksha/Build Android APK")]
+        [MenuItem("Karmaan/Build Android APK")]
         public static void BuildAndroidMenu()
         {
             BuildAndroid();

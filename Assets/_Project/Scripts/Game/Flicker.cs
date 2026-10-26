@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Suraksha.Game
+namespace Karmaan.Game
 {
     /// <summary>
     /// Cheap animated flicker for fire and warning lights.

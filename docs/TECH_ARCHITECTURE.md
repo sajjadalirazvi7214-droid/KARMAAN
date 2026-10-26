@@ -1,18 +1,18 @@
-# TECH ARCHITECTURE — KHAN SURAKSHA AR
+# TECH ARCHITECTURE — KARMAAN
 
 ## 1. Assembly split (Phase 1 task P1.5)
 
 ```
-Suraksha.Core        ← no Unity rendering, no AR. Models, LessonRunner, ScoreEngine,
+Karmaan.Core        ← no Unity rendering, no AR. Models, LessonRunner, ScoreEngine,
                         GuardrailRules, Localization. THE TESTABLE HEART.
-Suraksha.Content     ← lesson pack loading, validation, hash check
-Suraksha.Cert        ← cert payload, HMAC sign/verify, QR string
-Suraksha.Sync        ← attempt queue, sync client
-Suraksha.AR          ← AR Foundation + ARCore. Presentation only.
-Suraksha.UI          ← screens, voice playback, big-key components
+Karmaan.Content     ← lesson pack loading, validation, hash check
+Karmaan.Cert        ← cert payload, HMAC sign/verify, QR string
+Karmaan.Sync        ← attempt queue, sync client
+Karmaan.AR          ← AR Foundation + ARCore. Presentation only.
+Karmaan.UI          ← screens, voice playback, big-key components
 ```
 
-**Hard rule:** `Suraksha.Core` must never reference `Suraksha.AR`. If it does, the 3D fallback
+**Hard rule:** `Karmaan.Core` must never reference `Karmaan.AR`. If it does, the 3D fallback
 mode becomes impossible and the app is no longer usable on half the phones in Jharkhand.
 The asmdef makes this a compile error, not a code-review opinion.
 
@@ -21,7 +21,7 @@ The asmdef makes this a compile error, not a code-review opinion.
 > - The Newtonsoft package (`com.unity.nuget.newtonsoft-json`) ships a precompiled
 >   `Newtonsoft.Json.dll`. If an asmdef can't see it, set **Override References = true** and add
 >   `Newtonsoft.Json.dll` to **Assembly References → Precompiled References**.
-> - `Suraksha.AR` must reference `Unity.XR.ARFoundation`, `Unity.XR.ARCore`,
+> - `Karmaan.AR` must reference `Unity.XR.ARFoundation`, `Unity.XR.ARCore`,
 >   `Unity.XR.CoreUtils`, `Unity.XR.Management`. Those names must be picked from the list,
 >   not typed — a typo silently drops the assembly and you get "type not found" later.
 

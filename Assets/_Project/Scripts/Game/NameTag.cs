@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Suraksha.Game
+namespace Karmaan.Game
 {
     /// <summary>
     /// A floating label above a prop, billboarded to the camera.

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Suraksha.Game
+namespace Karmaan.Game
 {
     /// <summary>
     /// Primitive + material helpers. The demo build is a grey-box: every prop is a scaled cube,

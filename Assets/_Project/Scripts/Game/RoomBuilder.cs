@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Suraksha.Game
+namespace Karmaan.Game
 {
     /// <summary>Everything a built room hands back to the lesson presenter.</summary>
     public sealed class BuiltRoom

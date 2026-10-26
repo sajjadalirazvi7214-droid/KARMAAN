@@ -1,7 +1,7 @@
-using Suraksha.Game;
+using Karmaan.Game;
 using UnityEngine;
 
-namespace Suraksha.Bootstrap
+namespace Karmaan.Bootstrap
 {
     /// <summary>
     /// The only component in the boot scene. GameRoot initialises in Awake, then this starts the
@@ -16,7 +16,7 @@ namespace Suraksha.Bootstrap
         {
             if (GameRoot.Instance == null)
             {
-                Debug.LogError("[AppLauncher] No GameRoot in the scene. Run Suraksha > Set up project.");
+                Debug.LogError("[AppLauncher] No GameRoot in the scene. Run Karmaan > Set up project.");
                 return;
             }
 

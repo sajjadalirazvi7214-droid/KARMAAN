@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 
-namespace Suraksha.AR
+namespace Karmaan.AR
 {
     /// <summary>
     /// Keeps a placed object glued to the plane it was dropped on.

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Suraksha.Core
+namespace Karmaan.Core
 {
     public enum AppLanguage
     {

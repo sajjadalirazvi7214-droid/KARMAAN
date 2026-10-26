@@ -4,7 +4,7 @@ using System.IO;
 using Newtonsoft.Json;
 using UnityEngine;
 
-namespace Suraksha.Sync
+namespace Karmaan.Sync
 {
     /// <summary>One completed attempt. This is the only thing that ever leaves the phone.</summary>
     [Serializable]

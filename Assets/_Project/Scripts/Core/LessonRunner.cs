@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Suraksha.Core
+namespace Karmaan.Core
 {
     /// <summary>
     /// The lesson state machine. Presentation-agnostic: it knows nothing about AR, cameras

@@ -179,5 +179,6 @@
   "ar.scan.look": "TODO-SAT: फ़र्श ढूँढ रहे हैं… धीरे घुमाओ",
   "ar.scan.ready": "TODO-SAT: जगह तैयार — फ़र्श पर दबाओ",
   "ar.scan.miss": "TODO-SAT: फ़र्श नहीं मिला — फिर दबाओ",
-  "ar.fallback": "TODO-SAT: इस फ़ोन पर AR नहीं चलता — वही पाठ 3D में चलेगा"
+  "ar.fallback": "TODO-SAT: इस फ़ोन पर AR नहीं चलता — वही पाठ 3D में चलेगा",
+  "ui.app.name": "Karmaan"
 }

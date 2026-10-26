@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Suraksha.Core
+namespace Karmaan.Core
 {
     /// <summary>
     /// The six killer myths. Hard-coded on purpose: these are never content-managed,

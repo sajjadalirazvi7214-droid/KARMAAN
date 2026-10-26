@@ -1,4 +1,4 @@
-# Khan Suraksha AR
+# Karmaan
 
 **AR-based vocational safety simulator for Jharkhand mining, steel and mica workers.**
 SIH 26041 · Govt. of Jharkhand · Dept. of Higher & Technical Education · Team JKSS
@@ -31,7 +31,7 @@ signed QR certificate. No headset, no internet, Hindi and Santali.
 | **AR mode (ARCore plane placement)** | ✅ **Wired — session, plane tap-to-place, tap-to-pick, cutaway diorama. Needs a device to prove.** |
 | Grey-box rooms | ✅ 45 primitives each, coloured, name-tagged |
 | Lesson packs (Fire, Gas) | ✅ JSON, validated |
-| Hindi strings | ✅ 181 keys, 0 missing |
+| Hindi strings | ✅ 182 keys, 0 missing |
 | Santali strings | ⚠️ **0% — stubs only, needs native QA in Dumka/Pakur** |
 | QR **image** | ❌ Needs ZXing (Phase 5). The signed token and offline verify already work. |
 | Voice tracks (Hindi/Santali) | ❌ Phase 3 — tones are generated, speech is not recorded |
@@ -51,7 +51,7 @@ start.
 ## Play it
 
 1. Open the project in Unity `6000.3.6f1`. On first open it creates `00_Boot.unity` automatically
-   (menu: **Suraksha → Set up project** if you want to re-run it).
+   (menu: **Karmaan → Set up project** if you want to re-run it).
 2. Press **Play**.
 
 | Control | Action |
@@ -123,7 +123,7 @@ On first open Unity will:
 2. Ask to enable the **Input System** backend → say **Yes** (editor restarts)
 3. Generate `Library/` and the missing `ProjectSettings/*.asset` defaults
 4. Create `00_Boot.unity` **and** assign the ARCore loader for Android under
-   `Project Settings > XR Plug-in Management` (menu: **Suraksha → Set up project** to re-run)
+   `Project Settings > XR Plug-in Management` (menu: **Karmaan → Set up project** to re-run)
 
 Step 4 is not cosmetic. Without the ARCore loader assigned, `ARSession` never gets a subsystem,
 `ARSession.state` stays `None`, and every phone silently falls back to 3D — which looks exactly
@@ -134,7 +134,7 @@ like "AR isn't supported" rather than "the loader is not configured".
 ```bash
 "C:\Program Files\Unity\Hub\Editor\6000.3.6f1\Editor\Unity.exe" ^
   -batchmode -quit -projectPath "E:\Games\ar" ^
-  -executeMethod Suraksha.Build.ProjectSetup.Setup ^
+  -executeMethod Karmaan.Build.ProjectSetup.Setup ^
   -logFile "E:\Games\ar\Library\compile.log"
 ```
 
@@ -160,7 +160,7 @@ python tools/check_room_bindings.py            # every step must be reachable in
 option ids have no tappable object in the room is unanswerable — the worst possible bug in a
 training app, and one no compiler will ever catch.
 
-Current output: Hindi complete (148 keys, 0 missing), Santali 0/148. **The Santali table must be
+Current output: Hindi complete (149 keys, 0 missing), Santali 0/149. **The Santali table must be
 filled by a native speaker, not machine-translated.** The `TODO-SAT:` prefixes are deliberate —
 they make it impossible to accidentally ship untranslated safety instructions as if they were real.
 

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Suraksha.Core
+namespace Karmaan.Core
 {
     /// <summary>
     /// Turns a run of step results into a score and a pass/fail decision.

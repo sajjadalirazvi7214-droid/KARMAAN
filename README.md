@@ -131,7 +131,9 @@ like "AR isn't supported" rather than "the loader is not configured".
 
 ### Verify it compiles
 
-```bash
+From a normal Windows terminal:
+
+```bat
 "C:\Program Files\Unity\Hub\Editor\6000.3.6f1\Editor\Unity.exe" ^
   -batchmode -quit -projectPath "E:\Games\ar" ^
   -executeMethod Karmaan.Build.ProjectSetup.Setup ^
@@ -139,6 +141,17 @@ like "AR isn't supported" rather than "the loader is not configured".
 ```
 
 Exit code 0 and `ARCore loader assigned for Android` in the log means the editor side is healthy.
+
+**If you run this from Git Bash or any stripped shell**, Unity's Package Manager will die with
+`Failed to start the Unity Package Manager local server process` even though nothing is wrong with
+the project. The UPM server reads `process.env.PROGRAMDATA` (and `ALLUSERSPROFILE`) and crashes on
+`path.join(undefined, ...)` when they are missing. Export them first:
+
+```bash
+export PROGRAMDATA="C:\\ProgramData" ALLUSERSPROFILE="C:\\ProgramData" \
+       APPDATA="C:\\Users\\admin\\AppData\\Roaming"
+```
+
 Then follow `PROCEDURE.md` Phase 1.
 
 ---

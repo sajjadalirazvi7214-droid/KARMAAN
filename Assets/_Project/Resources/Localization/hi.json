@@ -199,6 +199,8 @@
   "ui.result.retry": "फिर करो",
   "ui.cert.title": "प्रमाण पत्र",
   "ui.cert.verify": "जाँचो",
+  "ui.cert.scan": "स्कैन करो",
+  "ui.cert.close": "बंद करो",
   "ui.menu": "मेन्यू",
   "ui.cert.valid": "सही",
   "ui.cert.expired": "समय खत्म",

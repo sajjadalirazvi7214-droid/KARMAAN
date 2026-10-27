@@ -19,6 +19,7 @@ namespace Karmaan.Core
         public LessonDef Lesson { get; }
         public RunnerState State { get; private set; } = RunnerState.Idle;
         public int CurrentStepIndex { get; private set; } = -1;
+        public bool StepsComplete { get; private set; }
         public ScoreReport Report { get; private set; }
 
         public event Action<LessonDef> Started;
@@ -70,6 +71,7 @@ namespace Karmaan.Core
 
             State = RunnerState.Intro;
             CurrentStepIndex = 0;
+            StepsComplete = false;
             _elapsedSec = 0f;
             Started?.Invoke(Lesson);
             PresentCurrentStep();
@@ -190,5 +192,6 @@ namespace Karmaan.Core
             if (step == null) return;
             StepPresented?.Invoke(step, CurrentStepIndex);
         }
+        // compile trigger
     }
 }

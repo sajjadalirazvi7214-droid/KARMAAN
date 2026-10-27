@@ -1,4 +1,5 @@
 using System;
+using Karmaan.Cert;
 using Karmaan.Core;
 using UnityEngine;
 using UIImage = UnityEngine.UI.Image;
@@ -24,6 +25,7 @@ namespace Karmaan.Game
         private RectTransform _hudRoot;
         private RectTransform _resultRoot;
         private RectTransform _arRoot;
+        private RectTransform _certRoot;
 
         private UIText _lessonTitle;
         private UIText _counter;
@@ -60,10 +62,13 @@ namespace Karmaan.Game
             _hudRoot = UiKit.Stretch(UiKit.Node(_canvas.transform, "HudRoot"));
             _resultRoot = UiKit.Stretch(UiKit.Node(_canvas.transform, "ResultRoot"));
             _arRoot = UiKit.Stretch(UiKit.Node(_canvas.transform, "ArRoot"));
+            // Created last so it draws over every other screen.
+            _certRoot = UiKit.Stretch(UiKit.Node(_canvas.transform, "CertRoot"));
 
             _hudRoot.gameObject.SetActive(false);
             _resultRoot.gameObject.SetActive(false);
             _arRoot.gameObject.SetActive(false);
+            _certRoot.gameObject.SetActive(false);
 
             BuildHud();
         }
@@ -76,6 +81,7 @@ namespace Karmaan.Game
             _hudRoot.gameObject.SetActive(false);
             _resultRoot.gameObject.SetActive(false);
             _arRoot.gameObject.SetActive(false);
+            HideZoom();
             _menuRoot.gameObject.SetActive(true);
             UiKit.Clear(_menuRoot);
 
@@ -196,6 +202,7 @@ namespace Karmaan.Game
             _hudRoot.gameObject.SetActive(false);
             _resultRoot.gameObject.SetActive(false);
             _arRoot.gameObject.SetActive(true);
+            HideZoom();
             UiKit.Clear(_arRoot);
 
             var bg = UiKit.Panel(_arRoot, "Bg", new Color(0.02f, 0.03f, 0.05f, 0.92f));
@@ -270,6 +277,7 @@ namespace Karmaan.Game
             _menuRoot.gameObject.SetActive(false);
             _resultRoot.gameObject.SetActive(false);
             _arRoot.gameObject.SetActive(false);
+            HideZoom();
             _hudRoot.gameObject.SetActive(true);
 
             _lessonTitle.text = _loc.Get(lessonTitleKey);
@@ -347,6 +355,7 @@ namespace Karmaan.Game
             _hudRoot.gameObject.SetActive(false);
             _menuRoot.gameObject.SetActive(false);
             _arRoot.gameObject.SetActive(false);
+            HideZoom();
             _resultRoot.gameObject.SetActive(true);
             UiKit.Clear(_resultRoot);
 
@@ -355,64 +364,108 @@ namespace Karmaan.Game
 
             var card = UiKit.Panel(_resultRoot, "Card", UiKit.Card);
             UiKit.Place((RectTransform)card.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-                Vector2.zero, new Vector2(1240f, 820f));
+                Vector2.zero, new Vector2(1400f, 900f));
 
             var verdict = report.passed ? _loc.Get("ui.result.pass") : _loc.Get("ui.result.fail");
             var verdictColor = report.passed ? UiKit.Go : UiKit.Stop;
 
             var verdictLabel = UiKit.Label(card.transform, "Verdict", verdict, 64, verdictColor);
             UiKit.Place((RectTransform)verdictLabel.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-                new Vector2(0f, -50f), new Vector2(1000f, 80f));
+                new Vector2(0f, -46f), new Vector2(1100f, 76f));
 
             var score = UiKit.Label(card.transform, "Score", report.score.ToString(), 150, UiKit.Ink);
             UiKit.Place((RectTransform)score.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-                new Vector2(0f, -190f), new Vector2(600f, 170f));
+                new Vector2(0f, -176f), new Vector2(600f, 160f));
 
             var scoreCaption = UiKit.Label(card.transform, "ScoreCaption", _loc.Get("ui.result.score"), 30, UiKit.Muted);
             UiKit.Place((RectTransform)scoreCaption.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-                new Vector2(0f, -292f), new Vector2(600f, 36f));
+                new Vector2(0f, -272f), new Vector2(600f, 36f));
 
             if (report.HasWeakSteps)
             {
                 var weakCaption = UiKit.Label(card.transform, "WeakCaption",
                     _loc.Get("ui.result.weak"), 30, UiKit.Muted);
                 UiKit.Place((RectTransform)weakCaption.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-                    new Vector2(0f, -352f), new Vector2(600f, 36f));
+                    new Vector2(0f, -330f), new Vector2(600f, 36f));
 
                 var weakList = UiKit.Label(card.transform, "WeakList",
                     string.Join(" · ", report.weakSteps.ToArray()), 28, UiKit.Warn);
                 UiKit.Place((RectTransform)weakList.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-                    new Vector2(0f, -396f), new Vector2(1100f, 40f));
+                    new Vector2(0f, -372f), new Vector2(1200f, 40f));
             }
 
-            // Certificate block. The token is real and signed; the QR matrix needs ZXing (Phase 5).
+            // Certificate block. The token is real and HMAC-signed; the QR beside it is rendered
+            // from the token itself, so a scanner reads back exactly what Verify() checks.
             var certBox = UiKit.Panel(card.transform, "CertBox", new Color(0.07f, 0.09f, 0.12f, 1f));
             UiKit.Place((RectTransform)certBox.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-                new Vector2(0f, -500f), new Vector2(1120f, 140f));
+                new Vector2(0f, -424f), new Vector2(1300f, 300f));
 
             var certTitle = UiKit.Label(certBox.transform, "CertTitle",
                 report.passed ? _loc.Get("ui.cert.title") : "—", 28, UiKit.Muted, TextAnchor.UpperLeft);
             UiKit.Place((RectTransform)certTitle.transform, new Vector2(0f, 1f), new Vector2(0f, 1f),
-                new Vector2(24f, -14f), new Vector2(600f, 34f));
+                new Vector2(24f, -16f), new Vector2(900f, 34f));
 
-            var tokenText = string.IsNullOrEmpty(certToken) ? "—" : Shorten(certToken, 64);
-            var certBody = UiKit.Label(certBox.transform, "CertBody", tokenText, 22,
-                report.passed ? UiKit.Ink : UiKit.Muted, TextAnchor.MiddleLeft);
-            UiKit.Place((RectTransform)certBody.transform, new Vector2(0f, 0f), new Vector2(0f, 0f),
-                new Vector2(24f, 20f), new Vector2(820f, 70f));
+            var hasToken = report.passed && !string.IsNullOrEmpty(certToken);
+            var tokenText = hasToken ? certToken : "—";
+            var certBody = UiKit.Label(certBox.transform, "CertBody", tokenText, 20,
+                hasToken ? UiKit.Ink : UiKit.Muted, TextAnchor.UpperLeft);
+            certBody.horizontalOverflow = HorizontalWrapMode.Wrap;
+            UiKit.Place((RectTransform)certBody.transform, new Vector2(0f, 1f), new Vector2(0f, 1f),
+                new Vector2(24f, -56f), new Vector2(940f, 132f));
+
+            // QR. Encoded here rather than in CertService so the token stays the single source of
+            // truth: whatever we draw is exactly the string Verify() will parse.
+            Sprite qrSprite = null;
+            if (hasToken)
+            {
+                string qrError;
+                qrSprite = QrSprite.ForToken(certToken, out qrError, 4, 4);
+                if (qrSprite == null)
+                {
+                    Debug.LogError("[Cert] QR encode failed for token: " + qrError);
+                }
+            }
+
+            if (qrSprite != null)
+            {
+                // Tap the QR to get a full-screen copy. At 268 px on a 1920-wide canvas the
+                // symbol is about 1.3 cm on a phone — fine to look at, too small for a guard to
+                // scan. The zoom view is what makes it actually usable at a gate.
+                var qrButton = UiKit.Button(certBox.transform, "QrBtn", "", new Vector2(1f, 1f),
+                    new Vector2(-146f, -138f), new Vector2(260f, 260f),
+                    delegate { ShowCertificateZoom(certToken); });
+
+                qrButton.background.sprite = qrSprite;
+                qrButton.background.color = Color.white;
+                qrButton.background.preserveAspect = true;
+                qrButton.idleColor = Color.white;
+                qrButton.hoverColor = new Color(0.82f, 0.82f, 0.82f);
+                if (qrButton.label != null) qrButton.label.gameObject.SetActive(false);
+
+                var scanCaption = UiKit.Label(certBox.transform, "QrCaption", _loc.Get("ui.cert.scan"), 22,
+                    UiKit.Muted);
+                UiKit.Place((RectTransform)scanCaption.transform, new Vector2(1f, 0f), new Vector2(1f, 0f),
+                    new Vector2(-16f, 2f), new Vector2(300f, 26f));
+            }
+            else
+            {
+                var placeholder = UiKit.Label(certBox.transform, "QrMissing", "—", 60, UiKit.Muted);
+                UiKit.Place((RectTransform)placeholder.transform, new Vector2(1f, 1f), new Vector2(0.5f, 0.5f),
+                    new Vector2(-146f, -138f), new Vector2(260f, 260f));
+            }
 
             if (!string.IsNullOrEmpty(verifyResult))
             {
                 var verifyLabel = UiKit.Label(certBox.transform, "VerifyResult", verifyResult, 24, UiKit.Go,
-                    TextAnchor.LowerRight);
-                UiKit.Place((RectTransform)verifyLabel.transform, new Vector2(1f, 1f), new Vector2(1f, 1f),
-                    new Vector2(-20f, -12f), new Vector2(280f, 40f));
+                    TextAnchor.MiddleLeft);
+                UiKit.Place((RectTransform)verifyLabel.transform, new Vector2(0f, 0f), new Vector2(0f, 0.5f),
+                    new Vector2(360f, 48f), new Vector2(560f, 40f));
             }
 
             if (report.passed)
             {
-                UiKit.Button(certBox.transform, "VerifyBtn", _loc.Get("ui.cert.verify"), new Vector2(1f, 0f),
-                    new Vector2(-24f, 30f), new Vector2(260f, 64f), onVerify);
+                UiKit.Button(certBox.transform, "VerifyBtn", _loc.Get("ui.cert.verify"), new Vector2(0f, 0f),
+                    new Vector2(180f, 48f), new Vector2(300f, 64f), onVerify);
             }
 
             UiKit.Button(card.transform, "RetryBtn", _loc.Get("ui.result.retry"), new Vector2(0.5f, 0f),
@@ -422,11 +475,65 @@ namespace Karmaan.Game
                 new Vector2(200f, 60f), new Vector2(340f, 96f), onMenu);
         }
 
+        /// <summary>
+        /// Full-screen QR, opened by tapping the one on the result card.
+        ///
+        /// The small copy exists to show that a certificate was issued; this one exists to be
+        /// scanned. At 715 px on a 1920-wide canvas it is roughly a third of the screen, which is
+        /// what a guard's phone needs at arm's length. The token is printed underneath as well, so
+        /// a damaged screen or a dead scanner does not make the certificate useless.
+        /// </summary>
+        public void ShowCertificateZoom(string token)
+        {
+            if (_certRoot == null || string.IsNullOrEmpty(token)) return;
+
+            // UiButton hit-tests rectangles and ignores draw order, so leaving the result card
+            // visible underneath would let a tap land on Retry as well as on Close.
+            _resultRoot.gameObject.SetActive(false);
+            _certRoot.gameObject.SetActive(true);
+            UiKit.Clear(_certRoot);
+
+            var bg = UiKit.Panel(_certRoot, "Bg", new Color(0.02f, 0.02f, 0.03f, 0.99f));
+            UiKit.Stretch((RectTransform)bg.transform);
+
+            string error;
+            var sprite = QrSprite.ForToken(token, out error, 11, 4);
+            if (sprite == null)
+            {
+                Debug.LogError("[Cert] Zoom QR encode failed: " + error);
+                HideZoom();
+                return;
+            }
+
+            var qr = UiKit.Image(_certRoot, "QrLarge", Color.white, sprite,
+                new Vector2(0.5f, 0.5f), new Vector2(0f, 110f), new Vector2(715f, 715f));
+            qr.preserveAspect = true;
+
+            var tokenLabel = UiKit.Label(_certRoot, "Token", token, 20, UiKit.Muted, TextAnchor.UpperCenter);
+            UiKit.Place((RectTransform)tokenLabel.transform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
+                new Vector2(0f, 150f), new Vector2(1500f, 110f));
+
+            UiKit.Button(_certRoot, "CloseBtn", _loc.Get("ui.cert.close"), new Vector2(0.5f, 0f),
+                new Vector2(0f, 60f), new Vector2(360f, 96f), CloseZoom);
+        }
+
+        private void CloseZoom()
+        {
+            HideZoom();
+            if (_resultRoot != null && _resultRoot.childCount > 0) _resultRoot.gameObject.SetActive(true);
+        }
+
+        public void HideZoom()
+        {
+            if (_certRoot != null) _certRoot.gameObject.SetActive(false);
+        }
+
         public void ShowQuiz(string prompt, string[] options, Action<int> onAnswer)
         {
             _hudRoot.gameObject.SetActive(false);
             _menuRoot.gameObject.SetActive(false);
             _arRoot.gameObject.SetActive(false);
+            HideZoom();
             _resultRoot.gameObject.SetActive(true);
             UiKit.Clear(_resultRoot);
 
@@ -468,12 +575,6 @@ namespace Karmaan.Game
             _menuRoot.gameObject.SetActive(false);
             _hudRoot.gameObject.SetActive(false);
             _resultRoot.gameObject.SetActive(false);
-        }
-
-        private static string Shorten(string value, int max)
-        {
-            if (string.IsNullOrEmpty(value) || value.Length <= max) return value;
-            return value.Substring(0, max) + "…";
         }
     }
 }

@@ -150,6 +150,8 @@
   "ui.cert.fake": "TODO-SAT: नकली",
   "ui.cert.revoked": "TODO-SAT: रद्द",
   "ui.cert.title": "TODO-SAT: प्रमाण पत्र",
+  "ui.cert.scan": "TODO-SAT: स्कैन करो",
+  "ui.cert.close": "TODO-SAT: बंद करो",
   "ui.cert.valid": "TODO-SAT: सही",
   "ui.cert.verify": "TODO-SAT: जाँचो",
   "ui.lang.hindi": "TODO-SAT: हिंदी",

@@ -57,6 +57,8 @@ attempt.
 | `Core/GuardrailRules.cs` | The six killer myths |
 | `Core/Localization.cs` | Key → string, script toggle, pending-locale flag |
 | `Cert/CertService.cs` | Payload, canonical JSON, HMAC-SHA256, verify, expiry state |
+| `Cert/QrEncoder.cs` | QR matrix: GF(256), Reed-Solomon, byte mode, ECC L, versions 1-12. **No UnityEngine** — stays testable outside the editor |
+| `Cert/QrSprite.cs` | Matrix → `Texture2D` / `Sprite` with quiet zone, point filtering |
 | `Sync/AttemptStore.cs` | Append-only JSONL queue with UUID dedupe |
 | `Content/LessonRepository.cs` | Pack loading + safety validation |
 | `Bootstrap/GameRoot.cs` | Wiring |

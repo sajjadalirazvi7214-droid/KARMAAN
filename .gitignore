@@ -40,3 +40,7 @@ Assets/_Project/Settings/DevKeys/
 *.keystore
 *.jks
 keystore.properties
+
+# ---- Python tooling ----
+__pycache__/
+*.pyc

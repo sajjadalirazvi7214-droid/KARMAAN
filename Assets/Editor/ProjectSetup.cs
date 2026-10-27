@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using Karmaan.Bootstrap;
 using UnityEditor;
+using UnityEditor.Build;
 using UnityEditor.SceneManagement;
 using UnityEditor.XR.Management;
 using UnityEditor.XR.Management.Metadata;
@@ -52,16 +53,35 @@ namespace Karmaan.Build
         public static void Setup()
         {
             EnsureFolders();
-            ConfigurePlayerSettings();
-            ConfigureXr();
+
+            // Scene first. It is the only thing here the user cannot work around: without it there
+            // is nothing to press Play on. Player settings and XR are conveniences, and on a
+            // machine without Android Build Support the Android-specific ones can throw — which
+            // must not be allowed to take the scene down with them.
             var created = CreateBootScene();
             RegisterScene();
+
+            TryStep("Player Settings", ConfigurePlayerSettings);
+            TryStep("XR", ConfigureXr);
 
             Debug.Log(
                 "[Karmaan] Project setup complete." +
                 (created ? " Boot scene created." : " Boot scene already existed.") +
                 "\nXR: ARCore loader assigned for Android (check Project Settings > XR Plug-in Management)." +
                 "\nIf you changed the input backend, restart the editor once.");
+        }
+
+        private static void TryStep(string label, Action step)
+        {
+            try
+            {
+                step();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("[Karmaan] " + label + " setup failed. The project still runs; " +
+                               "only that configuration is missing.\n" + e);
+            }
         }
 
         private static void EnsureFolders()
@@ -75,7 +95,7 @@ namespace Karmaan.Build
             PlayerSettings.companyName = "Team JKSS";
             PlayerSettings.productName = "Karmaan";
 
-            PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, "in.jh.karmaan.ar");
+            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "in.jh.karmaan.ar");
 
             // Android 10 is the floor the problem statement asks for.
             PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel29;

@@ -76,7 +76,7 @@ Decided now so we don't relitigate them mid-build.
 | Serialization | Newtonsoft JSON (`com.unity.nuget.newtonsoft-json`) | `JsonUtility` cannot do dictionaries or polymorphism. Lessons are data, not scenes. |
 | Lesson content format | **JSON packs in `Assets/_Project/Data/Lessons/`** | Content authored as data → lessons can be updated without touching code → pilot can ship new hazards as pack deltas. |
 | Local persistence | **JSONL append-only store** (not SQLite yet) | Zero native plugin, zero Android ABI risk. Swappable behind `IAttemptStore` if we outgrow it. |
-| QR | Payload built + HMAC-SHA256 signed in C#; QR *matrix* rendered by ZXing | Signing is ours (trust boundary). Rendering is a solved library problem. |
+| QR | Payload signed in C#; matrix rendered by **our own encoder** (`Scripts/Cert/QrEncoder.cs`, byte mode, ECC L, versions 1-12) | Signing is ours (trust boundary). Rendering is a solved problem — but a native plugin (ZXing) is an extra ABI per architecture and an extra thing to break on a cheap phone. 400 lines of arithmetic validated against a reference implementation beats a `.so`. |
 | Voice | Recorded human audio (Hindi, Santali) + Android TTS fallback | PS is explicit: real human voices, TTS only as fallback. |
 | Dashboard | Node + Postgres + React (separate repo folder `server/`) | Not Unity's problem. Built in parallel, Phase 6. |
 
@@ -183,7 +183,7 @@ second exit · muster order.
 |---|---|---|
 | **P5.1** | `CertPayload`: worker ID, lesson, score, date, centre code, attempt UUID, schema version. | Payload builds deterministically |
 | **P5.2** | HMAC-SHA256 signing over canonical JSON. Key in `Settings/DevKeys/` (**gitignored**). | Tamper a byte → verify fails |
-| **P5.3** | QR render via ZXing; encode signed payload compactly (`base64url`). | Scannable from a 5 cm print |
+| **P5.3** | QR render — ✅ **built as our own encoder**, no native plugin. Byte mode, ECC L, versions 1-12; a 254-char token lands on v10 (57×57). | Scannable from a 5 cm print |
 | **P5.4** | Offline verify: embedded public key/secret, expiry check, revoke list (cached). | Green / red / yellow / grey all reachable |
 | **P5.5** | Validity 1 year → auto **yellow** after expiry. | Clock-forward test passes |
 | **P5.6** | Scan time < 10 s at gate, gloves on. | Measured, not assumed |
@@ -335,15 +335,24 @@ E:\Games\ar\
 ├─ Packages\manifest.json        ← AR Foundation 6.7.0, ARCore 6.7.0, XR Mgmt, ugui, Newtonsoft
 ├─ ProjectSettings\ProjectVersion.txt
 ├─ tools\
+│  ├─ check_all.py               ← runs every gate below in one shot
 │  ├─ check_localisation.py      ← gate: every key resolves (packs + C# + name tags)
 │  ├─ check_room_bindings.py     ← gate: every step has a tappable object in the room
+│  ├─ check_qr_tables.py         ← gate: C# QR constants + masks vs the validated reference
+│  ├─ check_qr.py                ← gate: decode the editor's QR PNGs with ZXing
+│  ├─ check_csharp_refs.py       ← gate: Type.Member + call arity + duplicate declarations
+│  ├─ qr_ref.py                  ← the reference encoder the C# port is diffed against
 │  └─ extract_pdfs.py            ← source-material text extraction
 ├─ Assets\Editor\
 │  ├─ BuildPipeline.cs           ← headless APK build, fails loudly
-│  └─ ProjectSetup.cs            ← one-click setup, auto-creates the boot scene
+│  ├─ ProjectSetup.cs            ← one-click setup, auto-creates the boot scene
+│  └─ QrSelfTest.cs              ← dumps QR PNGs + manifest for the decode gate
 └─ Assets\_Project\
    ├─ Scripts\Core\              ← LessonRunner, ScoreEngine, GuardrailRules, Localization, models
    ├─ Scripts\Cert\              ← HMAC-signed cert payload + verify
+   │   ├─ CertService.cs         ← canonical JSON, HMAC-SHA256, verify, expiry
+   │   ├─ QrEncoder.cs           ← QR matrix, no UnityEngine (stays testable)
+   │   └─ QrSprite.cs            ← matrix → Texture2D / Sprite with quiet zone
    ├─ Scripts\Sync\              ← append-only attempt queue
    ├─ Scripts\Content\           ← lesson pack loader + safety validator
    ├─ Scripts\Bootstrap\         ← GameRoot, AppLauncher

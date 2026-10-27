@@ -24,6 +24,7 @@ namespace Karmaan.Game
         private ScoreReport _lastReport;
         private string _lastToken;
         private string _verifyResult;
+        private Camera _menuCamera;
 
         /// <summary>
         /// AR is only offered where ARCore can actually run. The Editor and a Windows standalone
@@ -88,12 +89,42 @@ namespace Karmaan.Game
             sun.intensity = 0.95f;
             sun.shadows = LightShadows.Soft;
 
+            // Menu screens are screen-space overlay UI, but the Game view still needs a camera to
+            // clear the frame. Without this the Editor shows "No cameras rendering" behind the
+            // menu, and a build has no defined background colour on that screen.
+            BuildMenuCamera();
+
             // Mobile budget: two pixel lights maximum, no more.
             QualitySettings.pixelLightCount = 2;
             Application.targetFrameRate = 60;
 
             _ui = GameUI.Create(_root.Localization);
             _ui.transform.SetParent(transform, false);
+        }
+
+        /// <summary>
+        /// A camera whose only job is to clear the screen behind menu / result UI.
+        /// Culling mask is empty, so it draws nothing but the background colour — the lesson camera
+        /// (depth 0) and the AR background camera both render on top of it.
+        /// </summary>
+        private void BuildMenuCamera()
+        {
+            var go = new GameObject("MenuCamera");
+            go.transform.SetParent(transform, false);
+            go.transform.position = new Vector3(0f, 1.6f, -5f);
+
+            _menuCamera = go.AddComponent<Camera>();
+            _menuCamera.clearFlags = CameraClearFlags.SolidColor;
+            _menuCamera.backgroundColor = new Color(0.03f, 0.04f, 0.06f);
+            _menuCamera.cullingMask = 0;
+            _menuCamera.depth = -100f;
+            _menuCamera.orthographic = true;
+            _menuCamera.orthographicSize = 5f;
+            _menuCamera.nearClipPlane = 0.1f;
+            _menuCamera.farClipPlane = 10f;
+            _menuCamera.allowHDR = false;
+            _menuCamera.allowMSAA = false;
+            _menuCamera.useOcclusionCulling = false;
         }
 
         private void Start()
@@ -117,6 +148,8 @@ namespace Karmaan.Game
 
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
+
+            if (_menuCamera != null) _menuCamera.enabled = true;
 
             _ui.ShowMenu(StartLesson, SetLanguage, ToggleAr, ArSupported, _arEnabled);
         }
@@ -165,6 +198,8 @@ namespace Karmaan.Game
             _presenter.transform.SetParent(transform, false);
             _presenter.Completed += OnCompleted;
             _presenter.Abandoned += ShowMenu;
+
+            if (_menuCamera != null) _menuCamera.enabled = false;
         }
 
         private void OnCompleted(ScoreReport report, string token)
@@ -180,6 +215,8 @@ namespace Karmaan.Game
         private void RenderResult()
         {
             if (_lastReport == null) return;
+
+            if (_menuCamera != null) _menuCamera.enabled = true;
 
             _ui.ShowResult(_lastReport, _lastToken, RetryLesson, ShowMenu, VerifyCertificate, _verifyResult);
         }

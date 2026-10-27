@@ -31,9 +31,9 @@ signed QR certificate. No headset, no internet, Hindi and Santali.
 | **AR mode (ARCore plane placement)** | ✅ **Wired — session, plane tap-to-place, tap-to-pick, cutaway diorama. Needs a device to prove.** |
 | Grey-box rooms | ✅ 45 primitives each, coloured, name-tagged |
 | Lesson packs (Fire, Gas) | ✅ JSON, validated |
-| Hindi strings | ✅ 182 keys, 0 missing |
+| Hindi strings | ✅ 184 keys, 0 missing |
 | Santali strings | ⚠️ **0% — stubs only, needs native QA in Dumka/Pakur** |
-| QR **image** | ❌ Needs ZXing (Phase 5). The signed token and offline verify already work. |
+| QR **image** | ✅ Our own encoder (`Scripts/Cert/QrEncoder.cs`) — signed token rendered on the result screen, tap to enlarge for scanning |
 | Voice tracks (Hindi/Santali) | ❌ Phase 3 — tones are generated, speech is not recorded |
 | Android APK | ❌ **Blocked — Android Build Support not installed** |
 | Dashboard / server | ❌ Phase 6 |
@@ -154,7 +154,25 @@ export PROGRAMDATA="C:\\ProgramData" ALLUSERSPROFILE="C:\\ProgramData" \
 
 Then follow `PROCEDURE.md` Phase 1.
 
+**If the editor stalls instead of compiling**, the log stops right after
+`[Package Manager] Done registering packages` and never prints
+`Application.AssetDatabase Initial Refresh End`. That is not this project: a brand-new empty
+project stalls identically, in batch and GUI mode, inside and outside a sandbox. It happens when
+Unity is launched by a background/agent process rather than by you — the asset database waits on
+something that process is not allowed to do. Launch it from the Hub and it works. Do not go
+hunting through `Assets/` for the cause.
+
 ---
+
+## Gates
+
+Four checks stand between this code and a red Console on first open. All of them at once:
+
+```bash
+python tools/check_all.py
+```
+
+Individually:
 
 ## Localisation gate
 
@@ -173,9 +191,59 @@ python tools/check_room_bindings.py            # every step must be reachable in
 option ids have no tappable object in the room is unanswerable — the worst possible bug in a
 training app, and one no compiler will ever catch.
 
-Current output: Hindi complete (149 keys, 0 missing), Santali 0/149. **The Santali table must be
+Current output: Hindi complete (151 keys, 0 missing), Santali 1/151. **The Santali table must be
 filled by a native speaker, not machine-translated.** The `TODO-SAT:` prefixes are deliberate —
 they make it impossible to accidentally ship untranslated safety instructions as if they were real.
+
+## QR gate
+
+The certificate QR is rendered by our own encoder, so it needs its own proof.
+
+```bash
+python tools/check_qr_tables.py   # C# constants + masks vs the validated reference
+python tools/check_qr.py          # decode the editor's PNGs with ZXing
+```
+
+`check_qr_tables.py` needs only the standard library and runs anywhere. It parses `QrEncoder.cs`
+and diffs the Reed-Solomon block table, the alignment table, the derived capacities, the version
+thresholds and all eight mask expressions against `tools/qr_ref.py`. It also guards the two bugs
+that were actually hit while building this: a reversed generator polynomial (every ECC byte
+wrong) and the format region being placed after the data zigzag.
+
+`check_qr.py` is the one that proves the *logic*, not just the data. It decodes every PNG the
+editor's `Karmaan > Run QR self-test` writes. Run it once Unity is usable — a symbol with correct
+finder patterns and a garbage payload looks perfectly plausible on screen.
+
+---
+
+## C# reference gate
+
+None of this code has ever been type-checked. There is no C# toolchain in the environment it was
+written in, so every symbol was written from memory or from reading package source — which is
+exactly where `UiKit.Lable(...)` hides.
+
+```bash
+python tools/check_csharp_refs.py            # whole project
+python tools/check_csharp_refs.py <dir>      # any Assets/ tree, for testing the gate itself
+```
+
+It parses all 31 files and checks four things that are fatal at compile time but invisible without
+a compiler:
+
+| Check | Would catch |
+|---|---|
+| `Type.Member` where `Type` is ours | a misspelt helper name |
+| Call arity against declarations | calling a 5-parameter helper with 2 arguments |
+| Duplicate type names in one namespace | CS0101 |
+| Same method signature twice | CS0111 — including `Twice(int a)` / `Twice(int b)`, which C# treats as one signature |
+
+It is deliberately permissive: "member exists" accepts any identifier appearing anywhere in the
+type body, so a name that only a local variable uses would pass. A *typo* cannot pass, because the
+misspelling appears nowhere. That trade keeps false positives at zero, which matters more than
+catching everything — a gate that cries wolf gets switched off.
+
+The gate was itself tested by injecting each of the four faults into a copy of `Assets/`; all four
+were reported and the legitimate call beside them was not. Run it before every commit.
 
 ---
 
@@ -185,7 +253,7 @@ they make it impossible to accidentally ship untranslated safety instructions as
 |---|---|---|
 | AR never compiled on a device | The AR layer is written against the real 6.7.0 API surface, read from the package source, not from memory — but the Unity Package Manager cannot start in this environment, so nothing has been compiled or run | Open in the Editor once, then build to a phone |
 | AR is a diorama, not a walk-in | 2.5 m of floor instead of 7 m, and the whole room is visible at once | `ArRoomScale = 1f` |
-| No QR image | The token is real and signed; only the matrix is missing | ZXing, Phase 5 |
+| QR never scanned by a phone camera | The encoder was validated in Python (480 module-for-module comparisons against a reference, then 49 encode → render → ZXing round-trips, zero failures) and the C# port's tables and mask functions are diffed back against it by `tools/check_qr_tables.py`. But the C# *logic* has not been executed — no C# toolchain in this environment | Run `Karmaan > Run QR self-test`, then `python tools/check_qr.py` |
 | No recorded voice | Tones prove the audio path; prompts are on screen | Native voice talent, Phase 3 |
 | Devanagari shaping | Unity's legacy `Text` does no OpenType shaping, so a few conjuncts render imperfectly. Short strings mostly survive. | TMP + pre-shaped atlas |
 | Trainer lock is a 3-second hold | Models the workflow without a PIN UI | Phase 6 |

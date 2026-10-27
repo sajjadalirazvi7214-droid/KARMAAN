@@ -2,6 +2,8 @@
 
 **AR-based vocational safety simulator for Jharkhand mining, steel and mica workers.**
 
+YouTube: [Final Demo](https://youtu.be/yeGygebhhCk)
+
 Point a mid-range Android phone at a real room. The phone paints fake fire, gas and hazards into that room. The worker has to *act correctly, in the right order* before the app will issue a signed QR certificate. No headset, no internet, Hindi and Santali.
 
 ## Quick Start
